@@ -147,12 +147,13 @@ This is a discipline document as much as a planning document. The failure mode f
 
 ## Things explicitly deferred to a theoretical v2 or later
 
-Kept here so they are acknowledged and therefore no longer tempting to sneak into earlier phases:
+Kept here so they are acknowledged and therefore no longer tempting to sneak into earlier phases.
+
+### Smaller deferrals
 
 - Face recognition as a third modality
-- Mobile PWA client
 - Challenge-response liveness (blink, head turn, smile)
-- True iris-PAD using NIR hardware features
+- True iris-PAD using near-infrared hardware features
 - Hardware integration with real fingerprint scanners (Suprema, DigitalPersona, etc.)
 - Proper HSM-backed template encryption
 - Multi-tenant admin, RBAC, audit logging for enterprise
@@ -160,7 +161,41 @@ Kept here so they are acknowledged and therefore no longer tempting to sneak int
 - Training a custom iris segmentation model
 - Contributing upstream to `worldcoin/open-iris`
 
-None of these are bad ideas. All of them are v2. They do not justify delaying earlier phases.
+### Larger deferrals — potential v2 product directions
+
+#### Mobile-phone-as-reader access control
+
+Instead of a kiosk with its own biometric hardware, the user presents their phone to a door, gate, or lock. The phone uses its native secure biometric (Face ID on iOS, BiometricPrompt on Android) to unlock a private key stored in the phone's secure enclave; that key signs a challenge issued by the lock over Bluetooth LE; the lock verifies the signature and opens.
+
+Why this is a distinct product, not a feature:
+
+- Different customer (end consumer / property managers vs. government and enterprise identity buyers).
+- Different threat model (decentralized per-device keys vs. centralized server-side templates).
+- Different stack (native iOS/Android + BLE firmware vs. web kiosk + backend).
+- Different go-to-market (hardware SKU + app vs. platform integration).
+
+Why it's worth preserving the idea anyway:
+
+- The Turkish market has no dominant player in phone-based smart access control; international options (Latch, August, HID Mobile Access) have limited local presence.
+- A co-founder with CNC manufacturing capability is already in the picture from an earlier project context, which changes the economics of producing the lock hardware.
+- TANIK's server-side fusion and threat-model work transfers conceptually, even if little code does.
+
+Critical technical notes to not forget when revisiting:
+
+- A browser-based (website / PWA) face scan is not viable as the authentication step — there is no hardware attestation that the camera stream is a live person rather than replayed media. Must be a native app using platform biometric APIs.
+- The phone's Face ID or fingerprint should unlock the signing key, not be transmitted. The biometric never leaves the secure enclave. This is the same model as FIDO2/WebAuthn and Apple Home Key.
+- BLE messages must be challenge-response with a fresh nonce per attempt to resist replay. A $30 BLE sniffer defeats any protocol that doesn't do this.
+- Multi-factor by construction: something-you-have (the enrolled phone) plus something-you-are (the biometric that unlocks the enclave).
+
+If this is ever pursued, it is a ground-up new project — it does not extend kiosk TANIK incrementally.
+
+#### Mobile PWA companion to the kiosk
+
+A narrower, more defensible extension: a PWA that pairs with a deployed TANIK kiosk for administrative functions (remote enrollment initiation, viewing one's own access history, admin dashboard on mobile). No biometric authentication done on the phone itself — the phone is just a management surface. This would be a plausible genuine v2 of TANIK, as opposed to the phone-as-reader concept above which is a different product.
+
+---
+
+None of the items in this section are bad ideas. All of them are v2. They do not justify delaying earlier phases.
 
 ---
 
