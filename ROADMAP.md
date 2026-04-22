@@ -201,6 +201,8 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 ## Current status
 
-**Phase:** 0 (not started)
+**Phase:** 0 complete, Phase 1 ready to start.
 
-**Next action:** Set up conda env, obtain a sample iris dataset, scaffold `notebooks/00_iris_spike.ipynb`.
+**Phase 0 result:** `notebooks/00_iris_spike.ipynb` runs top-to-bottom on a fresh `uv`-managed Python 3.10 venv with `open-iris` (SERVER profile). 24 same-eye pairs and 96 different-eye pairs across 4 MMU subjects produced zero overlap: same-eye Hamming distances span 0.05–0.28, different-eye span 0.41–0.48, every pair lands on the correct side of the 0.37 operating threshold. Env setup is documented in `notebooks/README.md`; dataset provenance in `docs/datasets.md`.
+
+**Next action:** Phase 1 — scaffold the FastAPI inference service (`POST /api/v1/iris/enroll`, `POST /api/v1/iris/verify`) and a minimal Next.js client, wired together via Docker Compose.
