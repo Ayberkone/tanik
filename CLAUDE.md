@@ -122,7 +122,7 @@ What persists for free across sessions: `CLAUDE.md`, `ROADMAP.md`, `BACKLOG.md`,
 
 > The new-session command is `/load`, not `/resume` — Claude Code has a built-in `/resume` that opens a session picker, which always wins over a project-level command of the same name.
 
-See `.claude/commands/handoff.md` and `.claude/commands/load.md` for what each step does.
+See `.claude/skills/handoff/SKILL.md` and `.claude/skills/load/SKILL.md` for what each step does.
 
 ---
 

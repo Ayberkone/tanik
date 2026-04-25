@@ -9,3 +9,4 @@ notebooks/data/
 .pytest_cache/
 apps/inference/tests/fixtures/_cache/
 .claude/session-state.md
+.claude/settings.local.json
