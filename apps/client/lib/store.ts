@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-import type { ApiError } from './api'
+import type { ApiError, EnrollResult, VerifyResult } from './api'
 
 export const CAPTURE_STATES = [
   'IDLE',
@@ -14,25 +14,7 @@ export type CaptureState = (typeof CAPTURE_STATES)[number]
 
 export type Flow = 'enroll' | 'verify'
 
-export type EnrollResult = {
-  request_id: string
-  subject_id: string
-  display_name: string | null
-  eye_side: 'left' | 'right'
-  enrolled_at: string
-  modality: 'iris'
-  template_version: string
-}
-
-export type VerifyResult = {
-  request_id: string
-  subject_id: string
-  modality: 'iris'
-  matched: boolean
-  hamming_distance: number
-  threshold: number
-  decision_at: string
-}
+export type { EnrollResult, VerifyResult }
 
 export type CaptureError = {
   code: ApiError['error_code'] | 'NETWORK' | 'INTERNAL'

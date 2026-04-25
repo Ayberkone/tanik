@@ -39,7 +39,59 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T
 }
 
+export type EnrollPayload = {
+  image: Blob
+  display_name?: string
+  eye_side?: 'left' | 'right'
+}
+
+export type EnrollResult = {
+  request_id: string
+  subject_id: string
+  display_name: string | null
+  eye_side: 'left' | 'right'
+  enrolled_at: string
+  modality: 'iris'
+  template_version: string
+}
+
+export type VerifyPayload = {
+  image: Blob
+  subject_id: string
+  eye_side?: 'left' | 'right'
+}
+
+export type VerifyResult = {
+  request_id: string
+  subject_id: string
+  modality: 'iris'
+  matched: boolean
+  hamming_distance: number
+  threshold: number
+  decision_at: string
+}
+
+function buildEnrollForm(p: EnrollPayload): FormData {
+  const fd = new FormData()
+  fd.append('image', p.image, 'capture.png')
+  if (p.display_name) fd.append('display_name', p.display_name)
+  fd.append('eye_side', p.eye_side ?? 'left')
+  return fd
+}
+
+function buildVerifyForm(p: VerifyPayload): FormData {
+  const fd = new FormData()
+  fd.append('image', p.image, 'capture.png')
+  fd.append('subject_id', p.subject_id)
+  if (p.eye_side) fd.append('eye_side', p.eye_side)
+  return fd
+}
+
 export const api = {
   apiBase: API_BASE,
   health: () => request<Health>('/api/v1/health'),
+  enrollIris: (p: EnrollPayload) =>
+    request<EnrollResult>('/api/v1/iris/enroll', { method: 'POST', body: buildEnrollForm(p) }),
+  verifyIris: (p: VerifyPayload) =>
+    request<VerifyResult>('/api/v1/iris/verify', { method: 'POST', body: buildVerifyForm(p) }),
 }
