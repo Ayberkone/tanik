@@ -1,11 +1,17 @@
-from fastapi import FastAPI
+import time
+import uuid
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .logging import setup_logging
-from .routes import health
+from .db import init_db
+from .errors import register_exception_handlers
+from .logging import log, setup_logging
+from .routes import health, iris
 
 setup_logging(settings.log_level)
+init_db()
 
 app = FastAPI(
     title="TANIK Inference",
@@ -22,4 +28,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def request_context(request: Request, call_next):
+    request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+    request.state.request_id = request_id
+    started = time.perf_counter()
+    response = await call_next(request)
+    elapsed_ms = (time.perf_counter() - started) * 1000
+    response.headers["x-request-id"] = request_id
+    log.info(
+        "%s %s -> %d  %.1fms  rid=%s",
+        request.method,
+        request.url.path,
+        response.status_code,
+        elapsed_ms,
+        request_id,
+    )
+    return response
+
+
+register_exception_handlers(app)
+
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(iris.router, prefix="/api/v1")
