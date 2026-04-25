@@ -35,7 +35,7 @@ Corollary: if a phase has not shipped (deployed, documented, committed, definiti
 
 ### Backend (`apps/inference/`)
 
-- Python 3.11+, FastAPI, Pydantic v2, `opencv-python-headless` (never plain `opencv-python` — it breaks in Docker).
+- Python **3.10** (pinned by `open-iris` — its classifiers list 3.8/3.9/3.10 only; 3.11+ is untested upstream and we do not deviate). FastAPI, Pydantic — note that `open-iris` pins Pydantic v1.10.x, so backend models follow the v1 API for now (migrate to v2 only after `open-iris` does or after a focused decoupling pass). `opencv-python-headless` (never plain `opencv-python` — it breaks in Docker).
 - All CPU-bound biometric work MUST be offloaded via `asyncio.to_thread` or `fastapi.concurrency.run_in_threadpool`. FastAPI's event loop must not block on a Hamming distance calculation or a SourceAFIS match.
 - Pydantic models validate every request body; no raw file streams accepted blindly.
 - File uploads are validated against magic bytes (real MIME), not the `Content-Type` header.
