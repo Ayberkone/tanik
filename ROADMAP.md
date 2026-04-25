@@ -201,34 +201,30 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 ## Current status
 
-**Phase:** 1 — implementation complete and CI-verified green. Deploy + final DoD walkthrough deferred per author decision.
+**Phase:** 2 — implementation complete locally; CI verification pending (next push). Phase 1 deploy + DoD walkthrough still deferred per author decision.
 
-**Last commit:** `a565e5f` chore(claude): add /handoff and /resume commands for session boundaries
-**Branch:** `main`, in sync with `origin/main`
+**Branch:** `main`, locally ahead of `origin/main` by Phase 2 commits.
 
-**Phase 1 implementation (20 of 22 tasks complete):**
-- ✅ API contract locked (`docs/api-contract.md`)
-- ✅ FastAPI backend: `/iris/enroll`, `/iris/verify`, `/health`; magic-byte uploads; SQLAlchemy 2 / SQLite storage; iris pipeline isolated in `run_in_threadpool`; Pydantic v1 settings via `TANIK_*` env vars; logfmt structured logging
-- ✅ Backend tests: 15 pytest (validators, storage round-trip, all endpoint paths)
-- ✅ Backend CI: green on `main` (`backend` workflow, run #5)
-- ✅ Backend Dockerfile: multi-stage, model pre-warmed, non-root user, healthcheck — built + smoke-tested
-- ✅ Next.js client: App Router + TS strict + Tailwind 4 + shadcn/ui + Zustand
-- ✅ Capture state machine: strict `IDLE → CAPTURING → UPLOADING → PROCESSING → SUCCESS|FAILED`
-- ✅ Webcam component: MediaStreamTrack lifecycle cleanup honored, browser-verified via Playwright fake-device flags
-- ✅ Enroll + verify flows: forms, image source picker (camera / file), result + error panels, deep-link from enroll → verify
-- ✅ Client Dockerfile: multi-stage standalone Next, non-root
-- ✅ Playwright e2e: 10 tests including webcam coverage; green on `main` (`client` workflow, run #3)
-- ✅ `docker compose up --build` brings the full stack up; verified end-to-end with real iris fixtures (matched HD ≈ 0.148, non-match HD ≈ 0.450)
-- ✅ `docs/sequence-flow.md` (Mermaid) and `docs/development.md`
-- ✅ README + ROADMAP refreshed for the public repo (github.com/Ayberkone/tanik)
-- ⏳ Deploy to a public URL (`#32`) — paused per author; deploy split is Vercel (client) + Railway (backend), to be wired when ready
-- ⏳ Phase 1 DoD verification (`#33`) — needs a real-browser walkthrough of enroll + verify with the user's actual face. Everything else is machine-covered.
+**Phase 2 implementation (7 of 7 tasks complete):**
+- ✅ SourceAFIS Python binding picked + vendored: JPype1 1.7.0 + sourceafis-java 3.18.1 (Apache 2.0, Maven Central, 181 KB JAR vendored at `apps/inference/tanik_inference/vendor/`). In-process JVM via JPype, mirrors `iris_engine`'s threadpool-offloaded shape (`#34`).
+- ✅ `BiometricEngine` Protocol (`engines.py`) — `runtime_checkable` contract with `name`, `template_version()`, `encode(image_bytes, **kwargs)`, `match(probe, gallery)`. Both engines satisfy it structurally; storage refactored to be modality-agnostic (`subjects` table now keyed by `modality` + `template_bytes` + `metadata_json`) (`#36`).
+- ✅ Public fingerprint dataset documented: NIST MINEX III validation imagery (U.S. public domain per 17 USC §105). Six images sampled across two subjects; downloaded into the existing gitignored `tests/fixtures/_cache/` and transcoded raw `.gray` → PNG in `conftest.py`. `docs/datasets.md` + a BACKLOG entry for the FVC same-finger gap (`#5`).
+- ✅ FingerprintEngine implementation + discrimination tests against MINEX (`#37`). Self-match scores well above SourceAFIS's documented 40 (FMR=0.01%); three parametrised cross-subject pairs all score below it. ISO 19794-2 export deferred to Phase 5 / interop story; native CBOR templates used internally for fidelity.
+- ✅ `/api/v1/fingerprint/enroll` + `/verify` endpoints — separate `FingerprintEnrollResponse` / `FingerprintVerifyResponse` schemas (finger_position enum, similarity_score open-ended, threshold env var `TANIK_FINGERPRINT_MATCH_THRESHOLD` default 40.0). Cross-modality lookup returns 404 SUBJECT_NOT_FOUND. `docs/api-contract.md` updated. Seven endpoint tests added (`#38`).
+- ✅ Client UI — separate `/fingerprint/enroll` + `/fingerprint/verify` pages (upload-only — webcam capture not feasible for fingerprints), home page restructured to a 4-card grid. Existing iris flows untouched. `EnrollResult` / `VerifyResult` are now discriminated unions; pages narrow by `modality`. Five new Playwright tests; existing 10 still green; `npm run lint` + `npm run build` clean (`#9`).
+- ⏳ Phase 2 DoD verification (`#10`) — local: 21 backend tests pass + 13 fingerprint tests skip cleanly without local JPype + 15 client e2e tests pass (5 of them new). CI run pending on push.
+
+**Phase 1 status (carried forward, unchanged):**
+- ⏳ Deploy to a public URL (`#32`) — paused per author; Vercel (client) + Railway (backend) split.
+- ⏳ Phase 1 DoD verification (`#33`) — needs a real-browser walkthrough with the author's actual face.
 
 **Open user-action items (SIDE):**
 - `#11` Execute ND-IRIS-0405 license agreement at https://cvrl.nd.edu/projects/data — Adam Czajka confirmed access path 2026-04-25; required for Phase 3 evaluation.
 
-**In flight:** Nothing. Working tree clean, all commits pushed.
+**In flight:** Nothing — every Phase 2 task closed locally; awaits CI verification on push, then ROADMAP can be marked Phase 2 fully shipped.
 
-**Next concrete action:** Phase 2 task `#34` — choose and integrate the SourceAFIS Python binding. Naturally chains into `#35` (source a public fingerprint dataset) and `#36` (design the `BiometricEngine` interface so iris and fingerprint share an abstraction). Phase 2 work begins in a fresh chat via `/load` (per the session-handoff protocol).
+**Next concrete action:** Push the Phase 2 commits and watch the `backend` and `client` workflows. If both go green, mark `#10` complete and the Phase 2 row above flips from ⏳ to ✅. Any CI failure becomes the immediate next investigation (most likely culprits: JPype1 1.7.0 manylinux wheel availability for cp310, or the JAR path through `importlib.resources` inside the wheel).
 
-> Phase-gate note: starting Phase 2 with `#32`/`#33` still open is a deliberate exception to phase-gate discipline. Author signed off on continuing because deploy is paused on the author's decision, not on a technical blocker — the phase is otherwise shipped.
+**Honest gap noted in DoD walkthrough:** the literal "same finger across two impressions matches" assertion is not verified. The MINEX validation set ships only one impression per finger, so the test suite covers (a) self-match (identical bytes) and (b) different-finger pairs across subjects. Genuine vs impostor pairing needs an FVC-style dataset, recorded in `BACKLOG.md` as a Phase 3 prerequisite.
+
+> Phase-gate note: Phase 2 was started with Phase 1 `#32`/`#33` still open, a deliberate exception the author signed off on (deploy paused on author's decision, not a technical blocker). Phase 2 itself is closed against ROADMAP's stated DoD modulo the FVC same-finger-pair gap above, which is a dataset constraint not a code constraint.
