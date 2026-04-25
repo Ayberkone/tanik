@@ -7,3 +7,4 @@ notebooks/data/
 *.db
 *.db-journal
 .pytest_cache/
+apps/inference/tests/fixtures/_cache/

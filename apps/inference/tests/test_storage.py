@@ -1,16 +1,10 @@
-import os
+import cv2
+import iris
+import numpy as np
+import pytest
 
-# Force a temp DB before importing the app modules.
-os.environ["TANIK_DB_URL"] = "sqlite:///:memory:"
-
-import cv2  # noqa: E402
-import iris  # noqa: E402
-import pytest  # noqa: E402
-
-from tanik_inference.db import init_db  # noqa: E402
-from tanik_inference.storage import create_subject, get_subject, get_template  # noqa: E402
-
-MMU_FIXTURE = "/tmp/mmu-probe/probe.bmp"
+from tanik_inference.db import init_db
+from tanik_inference.storage import create_subject, get_subject, get_template
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -19,18 +13,20 @@ def _db():
 
 
 @pytest.fixture(scope="module")
-def template():
-    if not os.path.exists(MMU_FIXTURE):
-        pytest.skip(f"missing fixture {MMU_FIXTURE}")
-    img = cv2.imread(MMU_FIXTURE, cv2.IMREAD_GRAYSCALE)
+def template(iris_fixtures):
+    img_bytes = iris_fixtures["subject_1_a"].read_bytes()
+    arr = np.frombuffer(img_bytes, dtype=np.uint8)
+    img = cv2.imdecode(arr, cv2.IMREAD_GRAYSCALE)
     pipe = iris.IRISPipeline()
-    out = pipe(iris.IRImage(img_data=img, image_id="probe", eye_side="left"))
+    out = pipe(iris.IRImage(img_data=img, image_id="storage_test", eye_side="left"))
     assert out["error"] is None, f"pipeline error: {out['error']}"
     return out["iris_template"]
 
 
 def test_create_and_fetch_subject(template):
-    row = create_subject(template, eye_side="left", display_name="Alice", template_version="open-iris/1.11.1")
+    row = create_subject(
+        template, eye_side="left", display_name="Alice", template_version="open-iris/1.11.1"
+    )
     assert row.subject_id
     assert row.display_name == "Alice"
     fetched = get_subject(row.subject_id)
@@ -39,7 +35,9 @@ def test_create_and_fetch_subject(template):
 
 
 def test_template_round_trip(template):
-    row = create_subject(template, eye_side="left", display_name=None, template_version="open-iris/1.11.1")
+    row = create_subject(
+        template, eye_side="left", display_name=None, template_version="open-iris/1.11.1"
+    )
     back = get_template(row.subject_id)
     assert back is not None
     matcher = iris.HammingDistanceMatcher()

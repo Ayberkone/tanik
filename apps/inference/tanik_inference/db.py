@@ -1,13 +1,26 @@
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Iterator, Optional
+from typing import Any, Dict, Iterator, Optional
 
 from sqlalchemy import String, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from .config import settings
 
-engine = create_engine(settings.db_url, echo=False, future=True)
+
+def _engine_kwargs(url: str) -> Dict[str, Any]:
+    # In-memory SQLite needs a single shared connection or each session sees an
+    # empty database. StaticPool gives that without affecting file-backed URLs.
+    if url.endswith(":memory:"):
+        return {
+            "poolclass": StaticPool,
+            "connect_args": {"check_same_thread": False},
+        }
+    return {}
+
+
+engine = create_engine(settings.db_url, echo=False, future=True, **_engine_kwargs(settings.db_url))
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
 
 
