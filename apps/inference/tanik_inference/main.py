@@ -38,12 +38,14 @@ async def request_context(request: Request, call_next):
     elapsed_ms = (time.perf_counter() - started) * 1000
     response.headers["x-request-id"] = request_id
     log.info(
-        "%s %s -> %d  %.1fms  rid=%s",
-        request.method,
-        request.url.path,
-        response.status_code,
-        elapsed_ms,
-        request_id,
+        "request",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "status": response.status_code,
+            "elapsed_ms": round(elapsed_ms, 1),
+            "request_id": request_id,
+        },
     )
     return response
 
