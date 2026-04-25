@@ -8,3 +8,4 @@ notebooks/data/
 *.db-journal
 .pytest_cache/
 apps/inference/tests/fixtures/_cache/
+.claude/session-state.md

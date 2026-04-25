@@ -112,6 +112,16 @@ This rule scales up: in Phase 0/1 with seven tests, exhaustive coverage matrices
 
 When the user corrects an approach, that is a signal — capture the rule in auto-memory so the next session does not repeat the mistake. Do this in addition to fixing the immediate code, not instead of it.
 
+### Session handoff when context grows heavy
+
+When the chat history gets long (many tool calls, slow responses), don't try to push through — close the session cleanly via `/handoff` and start a fresh chat with `/resume`. The user's gut is the trigger, not a token threshold.
+
+The handoff baton is `.claude/session-state.md` (gitignored — it's a baton, not history). `/handoff` writes it; `/resume` reads it and rebuilds the in-session task list. `ROADMAP.md` "Current status" is the durable, committed record; the session-state file just bridges the per-session task tracker.
+
+What persists for free across sessions: `CLAUDE.md`, `ROADMAP.md`, `BACKLOG.md`, `.claude/` tooling, git history, and auto-memory. What does not: TaskCreate state, uncommitted changes, in-flight reasoning. `/handoff` captures the things that don't.
+
+See `.claude/commands/handoff.md` and `.claude/commands/resume.md` for what each step does.
+
 ---
 
 ## What NOT to do without explicit confirmation
