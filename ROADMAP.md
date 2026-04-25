@@ -201,9 +201,10 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 ## Current status
 
-**Phase:** 2 — implementation complete locally; CI verification pending (next push). Phase 1 deploy + DoD walkthrough still deferred per author decision.
+**Phase:** 2 — implementation complete and CI-verified green. Phase 1 deploy + DoD walkthrough still deferred per author decision.
 
-**Branch:** `main`, locally ahead of `origin/main` by Phase 2 commits.
+**Last commit:** `ba85e81` ci(backend): surface pytest failures as public annotations + harden JPype calls
+**Branch:** `main`, in sync with `origin/main`.
 
 **Phase 2 implementation (7 of 7 tasks complete):**
 - ✅ SourceAFIS Python binding picked + vendored: JPype1 1.7.0 + sourceafis-java 3.18.1 (Apache 2.0, Maven Central, 181 KB JAR vendored at `apps/inference/tanik_inference/vendor/`). In-process JVM via JPype, mirrors `iris_engine`'s threadpool-offloaded shape (`#34`).
@@ -212,7 +213,7 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 - ✅ FingerprintEngine implementation + discrimination tests against MINEX (`#37`). Self-match scores well above SourceAFIS's documented 40 (FMR=0.01%); three parametrised cross-subject pairs all score below it. ISO 19794-2 export deferred to Phase 5 / interop story; native CBOR templates used internally for fidelity.
 - ✅ `/api/v1/fingerprint/enroll` + `/verify` endpoints — separate `FingerprintEnrollResponse` / `FingerprintVerifyResponse` schemas (finger_position enum, similarity_score open-ended, threshold env var `TANIK_FINGERPRINT_MATCH_THRESHOLD` default 40.0). Cross-modality lookup returns 404 SUBJECT_NOT_FOUND. `docs/api-contract.md` updated. Seven endpoint tests added (`#38`).
 - ✅ Client UI — separate `/fingerprint/enroll` + `/fingerprint/verify` pages (upload-only — webcam capture not feasible for fingerprints), home page restructured to a 4-card grid. Existing iris flows untouched. `EnrollResult` / `VerifyResult` are now discriminated unions; pages narrow by `modality`. Five new Playwright tests; existing 10 still green; `npm run lint` + `npm run build` clean (`#9`).
-- ⏳ Phase 2 DoD verification (`#10`) — local: 21 backend tests pass + 13 fingerprint tests skip cleanly without local JPype + 15 client e2e tests pass (5 of them new). CI run pending on push.
+- ✅ Phase 2 DoD verification (`#10`) — backend workflow green on `ba85e81` (21 iris/storage/validator tests + the full fingerprint suite running against Temurin 17 + JPype1 1.7.0 + the vendored SourceAFIS JAR + MINEX fixtures); client workflow green on `d686fa2` (15 Playwright tests, 5 of them new). The first push (`d686fa2`) failed backend with no public-readable detail; the follow-up commit added pytest→`::error::` annotation surfacing for next time and dropped a JPype `convertStrings=False` flag that was the proximate cause.
 
 **Phase 1 status (carried forward, unchanged):**
 - ⏳ Deploy to a public URL (`#32`) — paused per author; Vercel (client) + Railway (backend) split.
@@ -221,9 +222,9 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 **Open user-action items (SIDE):**
 - `#11` Execute ND-IRIS-0405 license agreement at https://cvrl.nd.edu/projects/data — Adam Czajka confirmed access path 2026-04-25; required for Phase 3 evaluation.
 
-**In flight:** Nothing — every Phase 2 task closed locally; awaits CI verification on push, then ROADMAP can be marked Phase 2 fully shipped.
+**In flight:** Nothing. Working tree clean, all commits pushed.
 
-**Next concrete action:** Push the Phase 2 commits and watch the `backend` and `client` workflows. If both go green, mark `#10` complete and the Phase 2 row above flips from ⏳ to ✅. Any CI failure becomes the immediate next investigation (most likely culprits: JPype1 1.7.0 manylinux wheel availability for cp310, or the JAR path through `importlib.resources` inside the wheel).
+**Next concrete action:** Phase 3 task `#41` — score normalisation + a unified `POST /api/v1/verify` endpoint. Naturally chains into a `docs/fusion.md` write-up of the calibration methodology and the `tests/evaluation/` harness that produces FAR/FRR numbers for `docs/performance.md`. Phase 3 is gated on the ND-IRIS-0405 dataset (`#11`, SIDE) and an FVC-style fingerprint dataset (BACKLOG); both are real-world acquisition tasks, not coding tasks. Without them, evaluation cannot ship measured numbers honestly. Phase 3 work begins in a fresh chat via `/load`.
 
 **Honest gap noted in DoD walkthrough:** the literal "same finger across two impressions matches" assertion is not verified. The MINEX validation set ships only one impression per finger, so the test suite covers (a) self-match (identical bytes) and (b) different-finger pairs across subjects. Genuine vs impostor pairing needs an FVC-style dataset, recorded in `BACKLOG.md` as a Phase 3 prerequisite.
 
