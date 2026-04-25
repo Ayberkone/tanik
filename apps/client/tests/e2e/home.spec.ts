@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test'
 
-test('home page renders TANIK header and the two flow entry points', async ({ page }) => {
+test('home page renders TANIK header and the four flow entry points', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'TANIK' })).toBeVisible()
-  await expect(page.getByRole('link', { name: /^Enroll/i })).toBeVisible()
-  await expect(page.getByRole('link', { name: /^Verify/i })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Enroll iris/i })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Verify iris/i })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Enroll fingerprint/i })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Verify fingerprint/i })).toBeVisible()
 })
 
 test('home page surfaces "unreachable" when the backend is down', async ({ page }) => {

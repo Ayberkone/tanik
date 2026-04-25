@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 
-import { IrisForm } from '@/components/iris-form'
+import { FingerprintForm } from '@/components/fingerprint-form'
 import { buttonVariants } from '@/components/ui/button'
-import { IrisVerifyResult, TanikApiError, api } from '@/lib/api'
+import { FingerprintVerifyResult, TanikApiError, api } from '@/lib/api'
 import { useCaptureStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
@@ -29,7 +29,7 @@ function VerifyInner() {
     store.beginUpload()
     try {
       store.serverProcessing()
-      const result = await api.verifyIris({
+      const result = await api.verifyFingerprint({
         image: store.imageBlob,
         subject_id: subjectId.trim(),
       })
@@ -47,17 +47,17 @@ function VerifyInner() {
   const canSubmit = store.canSubmit() && subjectId.trim().length > 0
 
   const successResult =
-    store.state === 'SUCCESS' && store.verifyResult?.modality === 'iris'
-      ? (store.verifyResult as IrisVerifyResult)
+    store.state === 'SUCCESS' && store.verifyResult?.modality === 'fingerprint'
+      ? (store.verifyResult as FingerprintVerifyResult)
       : null
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-12">
       <header className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Verify iris</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Verify fingerprint</h1>
           <p className="text-sm text-muted-foreground">
-            Match a fresh iris capture against a known subject.
+            Match a fresh fingerprint capture against a known subject.
           </p>
         </div>
         <Link href="/" className={cn(buttonVariants({ variant: 'ghost' }), 'h-auto py-2 text-xs')}>
@@ -76,12 +76,12 @@ function VerifyInner() {
               value={subjectId}
               onChange={(e) => setSubjectId(e.target.value)}
               disabled={inFlight}
-              placeholder="UUID returned by /enroll"
+              placeholder="UUID returned by /fingerprint/enroll"
               className="w-full rounded-md border bg-background px-3 py-2 font-mono text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </label>
 
-          <IrisForm
+          <FingerprintForm
             onImage={(blob) => store.imageReady(blob)}
             onError={(msg) => store.failed({ code: 'NETWORK', message: msg, request_id: null })}
             preview={store.imageBlob}
@@ -102,13 +102,15 @@ function VerifyInner() {
               {inFlight ? 'Verifying…' : 'Verify'}
             </button>
             <p className="text-xs text-muted-foreground">
-              {store.state === 'CAPTURING' && !store.imageBlob && 'Capture or upload an image to continue.'}
+              {store.state === 'CAPTURING' && !store.imageBlob && 'Upload an image to continue.'}
               {store.state === 'UPLOADING' && 'Uploading image…'}
-              {store.state === 'PROCESSING' && 'Server is running the iris pipeline…'}
+              {store.state === 'PROCESSING' && 'Server is running the SourceAFIS pipeline…'}
             </p>
           </div>
 
-          {store.state === 'FAILED' && store.error && <ErrorPanel error={store.error} onRetry={() => store.reset()} />}
+          {store.state === 'FAILED' && store.error && (
+            <ErrorPanel error={store.error} onRetry={() => store.reset()} />
+          )}
         </>
       )}
     </main>
@@ -119,13 +121,7 @@ function ResultPanel({
   result,
   onAnother,
 }: {
-  result: {
-    matched: boolean
-    hamming_distance: number
-    threshold: number
-    subject_id: string
-    decision_at: string
-  }
+  result: FingerprintVerifyResult
   onAnother: () => void
 }) {
   const matched = result.matched
@@ -139,16 +135,16 @@ function ResultPanel({
       )}
     >
       <p className={cn('font-medium', matched ? 'text-emerald-900 dark:text-emerald-200' : 'text-red-900 dark:text-red-200')}>
-        {matched ? 'Match — same iris' : 'No match — different iris'}
+        {matched ? 'Match — same finger' : 'No match — different finger'}
       </p>
       <dl className={cn('mt-3 grid gap-1 text-xs', matched ? 'text-emerald-900/80 dark:text-emerald-200/80' : 'text-red-900/80 dark:text-red-200/80')}>
         <div className="flex gap-2">
-          <dt className="w-32 shrink-0">hamming_distance</dt>
-          <dd className="font-mono">{result.hamming_distance.toFixed(4)}</dd>
+          <dt className="w-32 shrink-0">similarity_score</dt>
+          <dd className="font-mono">{result.similarity_score.toFixed(2)}</dd>
         </div>
         <div className="flex gap-2">
           <dt className="w-32 shrink-0">threshold</dt>
-          <dd className="font-mono">{result.threshold.toFixed(4)}</dd>
+          <dd className="font-mono">{result.threshold.toFixed(2)}</dd>
         </div>
         <div className="flex gap-2">
           <dt className="w-32 shrink-0">subject_id</dt>
@@ -199,8 +195,7 @@ function ErrorPanel({
   )
 }
 
-export default function VerifyPage() {
-  // useSearchParams requires Suspense in App Router.
+export default function FingerprintVerifyPage() {
   return (
     <Suspense fallback={null}>
       <VerifyInner />

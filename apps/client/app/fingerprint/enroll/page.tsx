@@ -3,18 +3,17 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-import { IrisForm } from '@/components/iris-form'
+import { FingerprintForm } from '@/components/fingerprint-form'
 import { buttonVariants } from '@/components/ui/button'
-import { IrisEnrollResult, TanikApiError, api } from '@/lib/api'
+import { FINGER_POSITIONS, FingerPosition, FingerprintEnrollResult, TanikApiError, api } from '@/lib/api'
 import { useCaptureStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
-export default function EnrollPage() {
+export default function FingerprintEnrollPage() {
   const store = useCaptureStore()
   const [displayName, setDisplayName] = useState('')
-  const [eyeSide, setEyeSide] = useState<'left' | 'right'>('left')
+  const [fingerPosition, setFingerPosition] = useState<FingerPosition>('right_index')
 
-  // Enter CAPTURING on mount; reset on unmount so /verify starts clean.
   useEffect(() => {
     if (store.state === 'IDLE') store.startCapture('enroll')
     return () => {
@@ -28,10 +27,10 @@ export default function EnrollPage() {
     store.beginUpload()
     try {
       store.serverProcessing()
-      const result = await api.enrollIris({
+      const result = await api.enrollFingerprint({
         image: store.imageBlob,
         display_name: displayName.trim() || undefined,
-        eye_side: eyeSide,
+        finger_position: fingerPosition,
       })
       store.enrollSucceeded(result)
     } catch (err) {
@@ -46,20 +45,20 @@ export default function EnrollPage() {
   const inFlight = store.isInFlight()
   const canSubmit = store.canSubmit() && displayName.trim().length <= 64
 
-  // Narrow the store's union-typed result to the iris variant — this page
-  // only ever calls enrollIris, so the runtime shape always matches.
+  // Narrow the store's union-typed result to the fingerprint variant —
+  // safe at runtime because this page only ever calls enrollFingerprint.
   const successResult =
-    store.state === 'SUCCESS' && store.enrollResult?.modality === 'iris'
-      ? (store.enrollResult as IrisEnrollResult)
+    store.state === 'SUCCESS' && store.enrollResult?.modality === 'fingerprint'
+      ? (store.enrollResult as FingerprintEnrollResult)
       : null
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-12">
       <header className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Enroll iris</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Enroll fingerprint</h1>
           <p className="text-sm text-muted-foreground">
-            Capture or upload one iris image and create a new subject.
+            Upload one fingerprint image and create a new subject.
           </p>
         </div>
         <Link href="/" className={cn(buttonVariants({ variant: 'ghost' }), 'h-auto py-2 text-xs')}>
@@ -85,20 +84,23 @@ export default function EnrollPage() {
               />
             </label>
             <label className="text-sm">
-              <span className="mb-1 block font-medium">Eye side</span>
+              <span className="mb-1 block font-medium">Finger position</span>
               <select
-                value={eyeSide}
-                onChange={(e) => setEyeSide(e.target.value as 'left' | 'right')}
+                value={fingerPosition}
+                onChange={(e) => setFingerPosition(e.target.value as FingerPosition)}
                 disabled={inFlight}
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="left">left</option>
-                <option value="right">right</option>
+                {FINGER_POSITIONS.map((pos) => (
+                  <option key={pos} value={pos}>
+                    {pos.replace('_', ' ')}
+                  </option>
+                ))}
               </select>
             </label>
           </section>
 
-          <IrisForm
+          <FingerprintForm
             onImage={(blob) => store.imageReady(blob)}
             onError={(msg) => store.failed({ code: 'NETWORK', message: msg, request_id: null })}
             preview={store.imageBlob}
@@ -119,13 +121,15 @@ export default function EnrollPage() {
               {inFlight ? 'Enrolling…' : 'Enroll'}
             </button>
             <p className="text-xs text-muted-foreground">
-              {store.state === 'CAPTURING' && !store.imageBlob && 'Capture or upload an image to continue.'}
+              {store.state === 'CAPTURING' && !store.imageBlob && 'Upload an image to continue.'}
               {store.state === 'UPLOADING' && 'Uploading image…'}
-              {store.state === 'PROCESSING' && 'Server is running the iris pipeline…'}
+              {store.state === 'PROCESSING' && 'Server is running the SourceAFIS pipeline…'}
             </p>
           </div>
 
-          {store.state === 'FAILED' && store.error && <ErrorPanel error={store.error} onRetry={() => store.reset()} />}
+          {store.state === 'FAILED' && store.error && (
+            <ErrorPanel error={store.error} onRetry={() => store.reset()} />
+          )}
         </>
       )}
     </main>
@@ -136,7 +140,7 @@ function SuccessPanel({
   result,
   onAnother,
 }: {
-  result: { subject_id: string; display_name: string | null; enrolled_at: string; template_version: string }
+  result: FingerprintEnrollResult
   onAnother: () => void
 }) {
   return (
@@ -150,6 +154,10 @@ function SuccessPanel({
         <div className="flex gap-2">
           <dt className="w-32 shrink-0">display_name</dt>
           <dd>{result.display_name ?? '—'}</dd>
+        </div>
+        <div className="flex gap-2">
+          <dt className="w-32 shrink-0">finger_position</dt>
+          <dd>{result.finger_position}</dd>
         </div>
         <div className="flex gap-2">
           <dt className="w-32 shrink-0">enrolled_at</dt>
@@ -169,7 +177,7 @@ function SuccessPanel({
           Enroll another
         </button>
         <Link
-          href={`/verify?subject_id=${result.subject_id}`}
+          href={`/fingerprint/verify?subject_id=${result.subject_id}`}
           className={cn(buttonVariants({ variant: 'secondary' }), 'h-8 px-3 text-xs')}
         >
           Verify this subject →

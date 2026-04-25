@@ -51,29 +51,33 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T
 }
 
-export type EnrollPayload = {
+// ---- Iris ----------------------------------------------------------------
+
+export type EyeSide = 'left' | 'right'
+
+export type IrisEnrollPayload = {
   image: Blob
   display_name?: string
-  eye_side?: 'left' | 'right'
+  eye_side?: EyeSide
 }
 
-export type EnrollResult = {
+export type IrisEnrollResult = {
   request_id: string
   subject_id: string
   display_name: string | null
-  eye_side: 'left' | 'right'
+  eye_side: EyeSide
   enrolled_at: string
   modality: 'iris'
   template_version: string
 }
 
-export type VerifyPayload = {
+export type IrisVerifyPayload = {
   image: Blob
   subject_id: string
-  eye_side?: 'left' | 'right'
+  eye_side?: EyeSide
 }
 
-export type VerifyResult = {
+export type IrisVerifyResult = {
   request_id: string
   subject_id: string
   modality: 'iris'
@@ -83,7 +87,67 @@ export type VerifyResult = {
   decision_at: string
 }
 
-function buildEnrollForm(p: EnrollPayload): FormData {
+// ---- Fingerprint ---------------------------------------------------------
+
+export const FINGER_POSITIONS = [
+  'right_thumb',
+  'right_index',
+  'right_middle',
+  'right_ring',
+  'right_little',
+  'left_thumb',
+  'left_index',
+  'left_middle',
+  'left_ring',
+  'left_little',
+] as const
+export type FingerPosition = (typeof FINGER_POSITIONS)[number]
+
+export type FingerprintEnrollPayload = {
+  image: Blob
+  display_name?: string
+  finger_position?: FingerPosition
+}
+
+export type FingerprintEnrollResult = {
+  request_id: string
+  subject_id: string
+  display_name: string | null
+  finger_position: FingerPosition
+  enrolled_at: string
+  modality: 'fingerprint'
+  template_version: string
+}
+
+export type FingerprintVerifyPayload = {
+  image: Blob
+  subject_id: string
+  finger_position?: FingerPosition
+}
+
+export type FingerprintVerifyResult = {
+  request_id: string
+  subject_id: string
+  modality: 'fingerprint'
+  matched: boolean
+  similarity_score: number
+  threshold: number
+  decision_at: string
+}
+
+// ---- Discriminated unions ------------------------------------------------
+
+export type EnrollResult = IrisEnrollResult | FingerprintEnrollResult
+export type VerifyResult = IrisVerifyResult | FingerprintVerifyResult
+
+// Backwards-compat aliases — the original iris types were exported under
+// these names. Pages that already imported them keep working.
+export type EnrollPayload = IrisEnrollPayload
+export type VerifyPayload = IrisVerifyPayload
+
+// ---- Form builders -------------------------------------------------------
+
+function buildIrisEnrollForm(p: IrisEnrollPayload): FormData {
   const fd = new FormData()
   fd.append('image', p.image, 'capture.png')
   if (p.display_name) fd.append('display_name', p.display_name)
@@ -91,7 +155,7 @@ function buildEnrollForm(p: EnrollPayload): FormData {
   return fd
 }
 
-function buildVerifyForm(p: VerifyPayload): FormData {
+function buildIrisVerifyForm(p: IrisVerifyPayload): FormData {
   const fd = new FormData()
   fd.append('image', p.image, 'capture.png')
   fd.append('subject_id', p.subject_id)
@@ -99,11 +163,43 @@ function buildVerifyForm(p: VerifyPayload): FormData {
   return fd
 }
 
+function buildFingerprintEnrollForm(p: FingerprintEnrollPayload): FormData {
+  const fd = new FormData()
+  fd.append('image', p.image, 'capture.png')
+  if (p.display_name) fd.append('display_name', p.display_name)
+  fd.append('finger_position', p.finger_position ?? 'right_index')
+  return fd
+}
+
+function buildFingerprintVerifyForm(p: FingerprintVerifyPayload): FormData {
+  const fd = new FormData()
+  fd.append('image', p.image, 'capture.png')
+  fd.append('subject_id', p.subject_id)
+  if (p.finger_position) fd.append('finger_position', p.finger_position)
+  return fd
+}
+
 export const api = {
   apiBase: API_BASE,
   health: () => request<Health>('/api/v1/health'),
-  enrollIris: (p: EnrollPayload) =>
-    request<EnrollResult>('/api/v1/iris/enroll', { method: 'POST', body: buildEnrollForm(p) }),
-  verifyIris: (p: VerifyPayload) =>
-    request<VerifyResult>('/api/v1/iris/verify', { method: 'POST', body: buildVerifyForm(p) }),
+  enrollIris: (p: IrisEnrollPayload) =>
+    request<IrisEnrollResult>('/api/v1/iris/enroll', {
+      method: 'POST',
+      body: buildIrisEnrollForm(p),
+    }),
+  verifyIris: (p: IrisVerifyPayload) =>
+    request<IrisVerifyResult>('/api/v1/iris/verify', {
+      method: 'POST',
+      body: buildIrisVerifyForm(p),
+    }),
+  enrollFingerprint: (p: FingerprintEnrollPayload) =>
+    request<FingerprintEnrollResult>('/api/v1/fingerprint/enroll', {
+      method: 'POST',
+      body: buildFingerprintEnrollForm(p),
+    }),
+  verifyFingerprint: (p: FingerprintVerifyPayload) =>
+    request<FingerprintVerifyResult>('/api/v1/fingerprint/verify', {
+      method: 'POST',
+      body: buildFingerprintVerifyForm(p),
+    }),
 }

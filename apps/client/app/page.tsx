@@ -25,6 +25,33 @@ async function getHealth(): Promise<HealthStatus> {
 
 export const dynamic = 'force-dynamic'
 
+const FLOWS = [
+  {
+    href: '/enroll',
+    label: 'Enroll iris',
+    desc: 'Capture or upload an iris image and create a new subject.',
+    variant: 'default' as const,
+  },
+  {
+    href: '/verify',
+    label: 'Verify iris',
+    desc: 'Match a fresh iris capture against an enrolled subject.',
+    variant: 'secondary' as const,
+  },
+  {
+    href: '/fingerprint/enroll',
+    label: 'Enroll fingerprint',
+    desc: 'Upload a fingerprint image and create a new subject.',
+    variant: 'default' as const,
+  },
+  {
+    href: '/fingerprint/verify',
+    label: 'Verify fingerprint',
+    desc: 'Match a fresh fingerprint capture against an enrolled subject.',
+    variant: 'secondary' as const,
+  },
+]
+
 export default async function Home() {
   const health = await getHealth()
   return (
@@ -65,34 +92,21 @@ export default async function Home() {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2">
-        <Link
-          href="/enroll"
-          className={cn(
-            buttonVariants({ variant: 'default' }),
-            'h-auto items-start justify-start py-4'
-          )}
-        >
-          <span className="flex flex-col items-start gap-1">
-            <span className="text-base font-medium">Enroll</span>
-            <span className="text-xs font-normal opacity-80">
-              Capture an iris and create a new subject.
+        {FLOWS.map((flow) => (
+          <Link
+            key={flow.href}
+            href={flow.href}
+            className={cn(
+              buttonVariants({ variant: flow.variant }),
+              'h-auto items-start justify-start py-4',
+            )}
+          >
+            <span className="flex flex-col items-start gap-1">
+              <span className="text-base font-medium">{flow.label}</span>
+              <span className="text-xs font-normal opacity-80">{flow.desc}</span>
             </span>
-          </span>
-        </Link>
-        <Link
-          href="/verify"
-          className={cn(
-            buttonVariants({ variant: 'secondary' }),
-            'h-auto items-start justify-start py-4'
-          )}
-        >
-          <span className="flex flex-col items-start gap-1">
-            <span className="text-base font-medium">Verify</span>
-            <span className="text-xs font-normal opacity-80">
-              Match a fresh capture against an enrolled subject.
-            </span>
-          </span>
-        </Link>
+          </Link>
+        ))}
       </section>
     </main>
   )
