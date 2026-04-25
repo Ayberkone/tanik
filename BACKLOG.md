@@ -21,12 +21,6 @@ Already captured in `ROADMAP.md` under "Larger deferrals — potential v2 produc
 
 Revisit only after TANIK Phase 5 ships. When revisited, treat as a ground-up new project — the TANIK codebase does not extend incrementally into this.
 
-## Merge general-purpose conventions from farmalink's CLAUDE.md into TANIK's
-
-The farmalink project has accumulated general-purpose Claude Code conventions (tone, code style, guardrails) that are not farmalink-specific and would also apply here. Audit farmalink's `CLAUDE.md`, identify the portable conventions, and merge them into TANIK's `CLAUDE.md` without duplicating or diluting the TANIK-specific sections (phase-gate discipline, biometric honesty conventions, technical stack rules).
-
-Do this as a focused pass, not incrementally. The risk of an incremental merge is that the TANIK-specific discipline gets blurred by generic guidance — keep the phase-gate section and the honesty section prominent and untouched.
-
 ## Notre Dame CVRL open-source iris algorithms (TripletIris / ArcIris) — comparison + dual-engine angle
 
 Adam Czajka (ND CVRL) pointed at https://github.com/CVRL/OpenSourceIrisRecognition in the ND-IRIS-0405 access reply (2026-04-25). It contains TripletIris and ArcIris — the only two NIST IREX X-leaderboarded open-source iris recognition algorithms in existence (entries `ndcvrl_001` and `ndcvrl_002`; https://pages.nist.gov/IREX10/).

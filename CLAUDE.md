@@ -75,6 +75,45 @@ This project's credibility comes from honest metrics and honest threat modeling.
 
 ---
 
+## Engineering discipline (right-sized for solo work)
+
+These are general engineering hygiene rules adapted from farmalink's playbook. They are scaled down to fit TANIK's solo / weekend cadence — full ceremony where it earns its keep, dropped where it would only add friction.
+
+### Plan before non-trivial work
+
+For anything beyond a trivial fix, write down the plan first — at minimum: what changes, in which files, what the success criterion is, what the test will be. If you can't answer those four questions, the plan is not ready. Investigate (grep, read code, check the contract) before writing code.
+
+The honest "I'm not sure yet, here's what I need to check" beats a confident dive that has to be unwound. When in doubt, ask the user — but only after a real attempt to answer it from the codebase first.
+
+For trivial work (a typo, a copy tweak, a one-line config change): the four-question discipline is overhead. Skip it.
+
+### Re-plan after two failed attempts
+
+If an approach is not working after two real attempts, stop and re-plan. Do not keep iterating in place. Write down what you learned from the failures and pick a different angle. Three failed attempts in a row is almost always a signal that the plan was wrong, not that the next attempt will work.
+
+### Pre-completion audit before declaring done
+
+Before saying a non-trivial change is complete:
+
+1. **Grep all consumers** of every function, type, field, or response you changed. For each: still works?
+2. **Re-read `docs/api-contract.md`** if the change touched the API. The implementation must agree with the contract — or update both in the same commit.
+3. **Run all relevant tests.** Not just the new ones; the existing ones that exercise changed code paths. End-to-end via `curl` against a real fixture if a request path changed.
+4. **Honest gap audit:** what could a careful reviewer ask that the current tests don't catch? Either write that test or note the gap explicitly.
+
+Most regressions in this project will come from skipping step 1 or step 4. They are cheap; do them.
+
+### Tests pass ≠ tests are comprehensive
+
+Coverage means "the code I changed still works AND the code I broke still works." A passing test count proves only what was tested. When you add a new module, add a direct test for it — integration coverage of one consumer does not count as unit coverage of the module.
+
+This rule scales up: in Phase 0/1 with seven tests, exhaustive coverage matrices are overhead. By Phase 3 (FAR/FRR evaluation, fusion, threshold tuning) the test surface gets large enough that an enumerated coverage matrix per feature starts paying for itself. Adopt it then, not before.
+
+### Capture lessons after corrections
+
+When the user corrects an approach, that is a signal — capture the rule in auto-memory so the next session does not repeat the mistake. Do this in addition to fixing the immediate code, not instead of it.
+
+---
+
 ## What NOT to do without explicit confirmation
 
 - Do not add face recognition as a third modality. It's in the deferred list and it changes the product.
