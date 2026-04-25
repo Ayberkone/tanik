@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tanik-inference"
+version = "0.1.0"
+description = "TANIK biometric inference service"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.30,<1",
+    "python-multipart>=0.0.20",
+    "pydantic>=1.10,<2",
+    "sqlalchemy>=2.0,<3",
+    "filetype>=1.2,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["tanik_inference"]
+
+# open-iris is installed separately in the parent venv. Its setup.py requires
+# IRIS_ENV=SERVER at install time, which does not compose cleanly with
+# pyproject dependency resolution. See ../../notebooks/README.md for the
+# install command. CI installs it the same way.
