@@ -201,27 +201,34 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 ## Current status
 
-**Phase:** 1 — implementation complete; deploy + browser DoD verification deferred per author decision.
+**Phase:** 1 — implementation complete and CI-verified green. Deploy + final DoD walkthrough deferred per author decision.
 
-**Phase 1 implementation status (16 / 17 tasks done):**
+**Last commit:** `a565e5f` chore(claude): add /handoff and /resume commands for session boundaries
+**Branch:** `main`, in sync with `origin/main`
+
+**Phase 1 implementation (20 of 22 tasks complete):**
 - ✅ API contract locked (`docs/api-contract.md`)
-- ✅ FastAPI backend: `/iris/enroll`, `/iris/verify`, `/health`; magic-byte uploads; SQLAlchemy 2 / SQLite storage; iris pipeline isolated in `run_in_threadpool`; Pydantic v1 settings via `TANIK_*` env vars
-- ✅ Backend tests: 15 pytest, including endpoint-level + storage round-trip + validators
-- ✅ Backend CI: `.github/workflows/backend.yml` (uv + Python 3.10 + open-iris SERVER profile + HF cache)
-- ✅ Backend Dockerfile: multi-stage, model pre-warmed, non-root user, healthcheck
+- ✅ FastAPI backend: `/iris/enroll`, `/iris/verify`, `/health`; magic-byte uploads; SQLAlchemy 2 / SQLite storage; iris pipeline isolated in `run_in_threadpool`; Pydantic v1 settings via `TANIK_*` env vars; logfmt structured logging
+- ✅ Backend tests: 15 pytest (validators, storage round-trip, all endpoint paths)
+- ✅ Backend CI: green on `main` (`backend` workflow, run #5)
+- ✅ Backend Dockerfile: multi-stage, model pre-warmed, non-root user, healthcheck — built + smoke-tested
 - ✅ Next.js client: App Router + TS strict + Tailwind 4 + shadcn/ui + Zustand
 - ✅ Capture state machine: strict `IDLE → CAPTURING → UPLOADING → PROCESSING → SUCCESS|FAILED`
-- ✅ Webcam component: MediaStreamTrack lifecycle cleanup honored
+- ✅ Webcam component: MediaStreamTrack lifecycle cleanup honored, browser-verified via Playwright fake-device flags
 - ✅ Enroll + verify flows: forms, image source picker (camera / file), result + error panels, deep-link from enroll → verify
 - ✅ Client Dockerfile: multi-stage standalone Next, non-root
-- ✅ Playwright e2e: 7 tests, all green; client CI workflow
-- ✅ `docker compose up --build` brings the full stack up; verified end-to-end via curl with real iris fixtures (matched HD ≈ 0.148, non-match HD ≈ 0.450)
+- ✅ Playwright e2e: 10 tests including webcam coverage; green on `main` (`client` workflow, run #3)
+- ✅ `docker compose up --build` brings the full stack up; verified end-to-end with real iris fixtures (matched HD ≈ 0.148, non-match HD ≈ 0.450)
 - ✅ `docs/sequence-flow.md` (Mermaid) and `docs/development.md`
-- ✅ Honest metrics posture in README and contract
-- ⏳ Structured logging polish (`#19`) — current logging is functional, formatting upgrade deferred
+- ✅ README + ROADMAP refreshed for the public repo (github.com/Ayberkone/tanik)
 - ⏳ Deploy to a public URL (`#32`) — paused per author; deploy split is Vercel (client) + Railway (backend), to be wired when ready
-- ⏳ Phase 1 DoD verification (`#33`) — needs a real browser run of webcam capture (the only test I cannot author from a CLI session) and the deploy URL
+- ⏳ Phase 1 DoD verification (`#33`) — needs a real-browser walkthrough of enroll + verify with the user's actual face. Everything else is machine-covered.
 
-**Phase 1 is functionally complete and locally verified.** The remaining items are deployment-gated and a single browser-side verification step.
+**Open user-action items (SIDE):**
+- `#11` Execute ND-IRIS-0405 license agreement at https://cvrl.nd.edu/projects/data — Adam Czajka confirmed access path 2026-04-25; required for Phase 3 evaluation.
 
-**Next action:** Author's choice — finish Phase 1 (deploy + browser verification) before starting Phase 2, per the phase-gate discipline. Phase 2 work (SourceAFIS, fingerprint dataset, BiometricEngine refactor) does not start until Phase 1 ships.
+**In flight:** Nothing. Working tree clean, all commits pushed.
+
+**Next concrete action:** Phase 2 task `#34` — choose and integrate the SourceAFIS Python binding. Naturally chains into `#35` (source a public fingerprint dataset) and `#36` (design the `BiometricEngine` interface so iris and fingerprint share an abstraction). Phase 2 work begins in a fresh chat via `/resume` (per the new session-handoff protocol).
+
+> Phase-gate note: starting Phase 2 with `#32`/`#33` still open is a deliberate exception to phase-gate discipline. Author signed off on continuing because deploy is paused on the author's decision, not on a technical blocker — the phase is otherwise shipped.
