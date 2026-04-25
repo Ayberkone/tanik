@@ -4,8 +4,8 @@
 >
 > An open-source, multi-modal biometric authentication kiosk. Iris + fingerprint, fused into a single identity decision, with honest metrics and a clear threat model.
 
-**Status:** Phase 1 shipped (iris enrollment + verification end-to-end). Fingerprint, fusion, liveness, and measured FAR/FRR are scheduled — see `ROADMAP.md`.
-**License:** MIT · **Stack:** Next.js 16 · FastAPI · Python 3.10
+**Status:** Phases 1 + 2 implementation shipped (iris + fingerprint enrollment + verification end-to-end). Fusion, liveness, and measured FAR/FRR are scheduled — see `ROADMAP.md`.
+**License:** MIT · **Stack:** Next.js 16 · FastAPI · Python 3.10 · OpenJDK 17 (for the SourceAFIS bridge)
 
 ---
 
@@ -27,21 +27,21 @@ It is not a startup, not a SaaS, and not trying to be a commercial product. It i
 Capture → Quality gate → Liveness gate → Feature extraction → Matching → Fusion → Decision
 ```
 
-Each stage has a single responsibility and can reject the request before passing to the next. Today, **only Capture → Feature extraction → Matching → Decision is implemented** (iris only). Quality gate, liveness gate, and fusion arrive in Phases 3 and 4. Each phase's definition of done is in `ROADMAP.md`.
+Each stage has a single responsibility and can reject the request before passing to the next. Today, **Capture → Feature extraction → Matching → Decision is implemented for both modalities independently** (iris and fingerprint each via their own `/api/v1/{modality}/{enroll,verify}` endpoints; iris and fingerprint are not yet fused). Quality gate, liveness gate, and fusion arrive in Phases 3 and 4. Each phase's definition of done is in `ROADMAP.md`.
 
 ## Components — current state
 
-| Layer | Tech | Phase 1 state |
+| Layer | Tech | State |
 |---|---|---|
-| **Client** (`apps/client/`) | Next.js 16 (App Router, Turbopack), React 19, TypeScript strict, Tailwind 4, shadcn/ui (base-nova), Zustand 5 | ✅ Webcam + file upload, capture state machine, enroll + verify flows |
-| **Inference** (`apps/inference/`) | FastAPI, Pydantic v1 (constrained by open-iris), SQLAlchemy 2 | ✅ Iris enroll + verify endpoints, magic-byte upload validation, threadpool-isolated pipeline |
+| **Client** (`apps/client/`) | Next.js 16 (App Router, Turbopack), React 19, TypeScript strict, Tailwind 4, shadcn/ui (base-nova), Zustand 5 | ✅ Iris (webcam + upload) and fingerprint (upload-only) flows; capture state machine; 4-card home page |
+| **Inference** (`apps/inference/`) | FastAPI, Pydantic v1 (constrained by open-iris), SQLAlchemy 2, JPype1 | ✅ Iris + fingerprint enrol + verify endpoints behind a shared `BiometricEngine` interface; magic-byte upload validation; both pipelines run in a thread pool |
 | **Iris engine** | [`worldcoin/open-iris`](https://github.com/worldcoin/open-iris) | ✅ Pre-warmed in the Docker image; matches via masked fractional Hamming distance |
-| **Fingerprint engine** | SourceAFIS (Python binding) | ⏳ Phase 2 |
+| **Fingerprint engine** | [SourceAFIS](https://sourceafis.machinezoo.com/) 3.18.1 (Java JAR vendored, called via JPype) | ✅ In-process JVM, native CBOR templates, similarity scoring against the documented FMR=0.01% threshold |
 | **Liveness (v1)** | Basic presentation-attack detector | ⏳ Phase 4 |
 | **Fusion** | Weighted-sum, calibrated weights | ⏳ Phase 3 |
-| **Storage** | SQLite (templates only, never raw images) | ✅ Single subjects table, JSON-serialized templates |
+| **Storage** | SQLite (templates only, never raw images) | ✅ Modality-agnostic `subjects` table — `(subject_id, modality, template_bytes, metadata_json, ...)` — engines own their own template format |
 | **Orchestration** | Docker Compose | ✅ Internal bridge network, named volume for SQLite, healthchecks on both services |
-| **CI** | GitHub Actions | ✅ Backend pytest + Playwright e2e on every push |
+| **CI** | GitHub Actions | ✅ Backend pytest (incl. fingerprint suite against Temurin 17) + Playwright e2e on every push |
 
 The client and inference node are decoupled intentionally. The inference node never renders UI, the client never runs ML. The only contract between them is `docs/api-contract.md`.
 
@@ -70,7 +70,7 @@ The fusion weights (iris vs fingerprint) will not be pulled from the air. They w
 
 ## Datasets
 
-Currently in use: **MMU Iris Database** (Phase 0 spike notebook + downloadable test fixture for the backend tests). Source, license, and access notes for every dataset are in `docs/datasets.md`. No proprietary or private biometric data is included in the repo, ever — `notebooks/data/` and the test fixture cache are gitignored. ND-IRIS-0405 access is in progress for Phase 3 evaluation.
+Currently in use: **MMU Iris Database** (Phase 0 spike notebook), Worldcoin's public iris demo set (downloaded as backend test fixtures), and **NIST MINEX III** validation imagery (Phase 2 fingerprint test fixtures, U.S. public domain). Source, license, and access notes for every dataset are in `docs/datasets.md`. No proprietary or private biometric data is included in the repo, ever — `notebooks/data/` and the test fixture cache are gitignored. ND-IRIS-0405 access is in progress for Phase 3 iris evaluation; an FVC-style fingerprint set with multiple impressions per finger is the parallel Phase 3 dependency on the fingerprint side.
 
 ## Quickstart
 

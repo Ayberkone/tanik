@@ -36,7 +36,10 @@ def _ensure_jvm() -> None:
     import jpype.imports  # noqa: F401  enables `from com.machinezoo... import ...`
 
     if not jpype.isJVMStarted():
-        jpype.startJVM(classpath=[str(sourceafis_jar_path())], convertStrings=False)
+        # Use JPype's default conversion settings (don't pin convertStrings —
+        # the flag's default has flipped between releases and pinning has
+        # caused subtle Java-string handling drift in the past).
+        jpype.startJVM(classpath=[str(sourceafis_jar_path())])
     _jvm_started = True
 
 
@@ -50,15 +53,16 @@ def _encode_sync(image_bytes: bytes) -> Tuple[Optional[bytes], Optional[str]]:
     from com.machinezoo.sourceafis import FingerprintImage, FingerprintTemplate
 
     try:
-        java_bytes = jpype.JArray(jpype.JByte)(image_bytes)
-        image = FingerprintImage(java_bytes)
+        # `bytes(...)` is a documented JArray(JByte) constructor input in
+        # JPype 1.5+; bytes(serialized) on the way back uses JArray's
+        # buffer protocol support.
+        image = FingerprintImage(jpype.JArray(jpype.JByte)(bytes(image_bytes)))
         template = FingerprintTemplate(image)
-        serialized = template.toByteArray()
-        return bytes(serialized), None
+        return bytes(template.toByteArray()), None
     except jpype.JException as exc:
-        return None, str(exc.message())
+        return None, f"{type(exc).__name__}: {exc.message()}"
     except Exception as exc:
-        return None, str(exc)
+        return None, f"{type(exc).__name__}: {exc}"
 
 
 async def encode(image_bytes: bytes, **_: object) -> Tuple[Optional[bytes], Optional[str]]:
@@ -70,8 +74,8 @@ def _match_sync(probe: bytes, gallery: bytes) -> float:
     import jpype
     from com.machinezoo.sourceafis import FingerprintMatcher, FingerprintTemplate
 
-    probe_template = FingerprintTemplate(jpype.JArray(jpype.JByte)(probe))
-    gallery_template = FingerprintTemplate(jpype.JArray(jpype.JByte)(gallery))
+    probe_template = FingerprintTemplate(jpype.JArray(jpype.JByte)(bytes(probe)))
+    gallery_template = FingerprintTemplate(jpype.JArray(jpype.JByte)(bytes(gallery)))
     matcher = FingerprintMatcher(probe_template)
     return float(matcher.match(gallery_template))
 

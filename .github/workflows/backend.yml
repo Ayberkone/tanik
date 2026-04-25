@@ -54,7 +54,23 @@ jobs:
           key: hf-open-iris-${{ hashFiles('apps/inference/pyproject.toml') }}-v1
 
       - name: Run tests
+        id: pytest
         env:
           # Quoted because the colons in sqlite:///:memory: confuse YAML.
           TANIK_DB_URL: "sqlite:///:memory:"
-        run: .venv/bin/pytest apps/inference/tests -v
+        run: .venv/bin/pytest apps/inference/tests -v --tb=short --color=no 2>&1 | tee /tmp/pytest.log
+
+      - name: Surface failure context as workflow annotations
+        if: failure() && steps.pytest.outcome == 'failure'
+        # Anonymous (public-repo) consumers can read check-run annotations but
+        # not raw run logs, so we promote the most actionable lines (FAILED:
+        # markers and traceback summaries) to ::error:: lines. They show up
+        # on the public run page and via the check-runs annotations API.
+        run: |
+          echo "::group::Final 120 lines of pytest output"
+          tail -120 /tmp/pytest.log
+          echo "::endgroup::"
+          grep -E '^(FAILED|ERROR|E +|tanik_inference|>.*assert)' /tmp/pytest.log | head -40 | while IFS= read -r line; do
+            # ::error:: lines truncate at ~1000 chars; keep them tight
+            printf '::error::%s\n' "${line:0:500}"
+          done
