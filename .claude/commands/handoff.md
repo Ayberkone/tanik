@@ -1,3 +1,8 @@
+---
+name: handoff
+description: Snapshot session state, update ROADMAP, and prep a clean handoff to a fresh chat
+---
+
 # /handoff
 
 Close the current session cleanly so a fresh chat can pick up exactly where we left off via `/load`. Run this when the conversation gets heavy (long tool-call history, slow responses) and you want a fresh context.
@@ -88,10 +93,12 @@ Session handed off.
 - .claude/session-state.md written (M tasks snapshotted).
 - Auto-memory entries added: <list, or "none">.
 
-Open a new chat and type: /load
+Next two steps in this terminal:
+  1. /clear   — wipe the chat context
+  2. /load    — bootstrap from the session-state baton
 ```
 
-Don't say anything after that — the handoff is the end of the session.
+Don't say anything after that — the handoff is the end of the session. The user runs `/clear` and then `/load`; do not chain those yourself (Claude has no tool that triggers `/clear`; it's a harness-level action only the user can invoke).
 
 ## Rules
 

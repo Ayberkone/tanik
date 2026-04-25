@@ -1,6 +1,11 @@
+---
+name: load
+description: Bootstrap a fresh chat after /handoff — read state, rebuild tasks, summarize, wait
+---
+
 # /load
 
-Open a new chat with this command after a previous session ran `/handoff`. Bootstraps context fast and stops before doing any real work.
+Run this at the start of a fresh chat after a previous session ran `/handoff` (and the user has typed `/clear` to wipe context). Bootstraps fast and stops before doing any real work.
 
 > **Naming note.** Originally called `/resume`, but Claude Code has a built-in `/resume` that opens a session picker — the built-in always wins, so the project command never fires. Renamed to `/load` to avoid the collision.
 

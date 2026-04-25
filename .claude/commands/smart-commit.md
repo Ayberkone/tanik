@@ -1,3 +1,8 @@
+---
+name: smart-commit
+description: Analyze staged + unstaged changes and create a well-formatted conventional commit
+---
+
 # /smart-commit
 
 Analyze staged + unstaged changes and create a well-formatted conventional commit.
