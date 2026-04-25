@@ -56,6 +56,15 @@ All optional, prefixed `TANIK_`:
 | `TANIK_IRIS_MATCH_THRESHOLD` | `0.37` | Hamming distance below which iris verify returns `matched: true` |
 | `TANIK_MAX_UPLOAD_BYTES` | `10485760` | reject uploads larger than this with 413 |
 
+### Java runtime (Phase 2 onwards)
+
+Phase 2 added SourceAFIS for fingerprint matching, called from Python via JPype. The vendored JAR (`apps/inference/tanik_inference/vendor/sourceafis-3.18.1.jar`) is loaded into an in-process JVM the first time any fingerprint endpoint or test runs.
+
+- **Docker / CI**: handled — `default-jre-headless` is installed in the inference image and OpenJDK 17 (Temurin) in CI.
+- **Native, Linux/x86_64**: install any OpenJDK ≥ 11 (`apt-get install default-jre-headless`); JPype1 wheels are prebuilt for manylinux.
+- **Native, macOS Intel**: install OpenJDK ≥ 11 (`brew install openjdk@17` and follow the symlink hint Homebrew prints); JPype1 ships an x86_64 wheel.
+- **Native, macOS Apple Silicon**: JPype1 1.7.0 ships **no arm64 macOS wheel** — `pip install jpype1` will try to build from source. You either need Xcode Command Line Tools + a JDK + Apache Ant available at install time, or skip native fingerprint dev and use Docker (`docker compose up inference`) for any work that touches `fingerprint_engine`. The backend test suite skips fingerprint tests cleanly when JPype isn't importable, so the rest of the suite still runs natively.
+
 ### Backend tests
 
 ```bash

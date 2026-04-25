@@ -58,14 +58,17 @@ FROM python:3.10-slim-bookworm AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:${PATH}" \
-    TANIK_DB_URL="sqlite:////data/tanik.db"
+    TANIK_DB_URL="sqlite:////data/tanik.db" \
+    JAVA_HOME="/usr/lib/jvm/default-java"
 
 # Runtime libs:
 #   libgomp1     — required by onnxruntime
 #   libglib2.0-0 — required by opencv-python-headless
 #   libstdc++6   — required by some onnxruntime / numpy bindings (provided by base, listed for clarity)
+#   default-jre-headless — JVM for the SourceAFIS binding (JPype loads the
+#                          vendored sourceafis-3.18.1.jar via this JRE)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libgomp1 libglib2.0-0 \
+        libgomp1 libglib2.0-0 default-jre-headless \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --shell /usr/sbin/nologin --uid 10001 tanik
 

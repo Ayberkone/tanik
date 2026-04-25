@@ -14,6 +14,7 @@ dependencies = [
     "pydantic>=1.10,<2",
     "sqlalchemy>=2.0,<3",
     "filetype>=1.2,<2",
+    "jpype1>=1.7,<2",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +25,9 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["tanik_inference"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"tanik_inference/vendor/sourceafis-3.18.1.jar" = "tanik_inference/vendor/sourceafis-3.18.1.jar"
 
 # open-iris is installed separately in the parent venv. Its setup.py requires
 # IRIS_ENV=SERVER at install time, which does not compose cleanly with

@@ -19,6 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install OpenJDK 17
+        # Required by JPype for the SourceAFIS binding (fingerprint_engine).
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Install uv
         # Pinned to a specific tag — astral-sh/setup-uv stopped publishing
         # moving major-version tags after v7 ("immutable releases" change).
