@@ -1,7 +1,19 @@
 // Thin client for the TANIK inference service. The contract lives in
 // docs/api-contract.md — every function below mirrors a section there.
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000'
+// NEXT_PUBLIC_API_BASE_URL is baked into the browser bundle at build time —
+// it MUST be the URL the user's browser can reach (e.g. https://api.example.com).
+//
+// INTERNAL_API_BASE_URL (server-only, no NEXT_PUBLIC_ prefix) overrides the
+// URL for SSR / server-action fetches. In Docker Compose this lets the Next
+// container call http://inference:8000 over the internal bridge network
+// while the browser bundle still uses the host-routable URL. If unset on
+// the server, falls back to the public URL.
+const PUBLIC_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000'
+const INTERNAL_BASE =
+  typeof window === 'undefined' ? process.env.INTERNAL_API_BASE_URL ?? PUBLIC_BASE : PUBLIC_BASE
+
+const API_BASE = INTERNAL_BASE
 
 export type Health = {
   status: 'ok'

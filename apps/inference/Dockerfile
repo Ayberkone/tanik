@@ -37,14 +37,18 @@ RUN IRIS_ENV=SERVER uv pip install --python /opt/venv/bin/python \
 RUN uv pip uninstall --python /opt/venv/bin/python opencv-python \
     && uv pip install --python /opt/venv/bin/python "opencv-python-headless==4.7.0.68"
 
-# Pre-download the ONNX segmentation model into the HF cache so the runtime
-# does not have to fetch ~56 MB on cold start. Cache lives at /root/.cache/huggingface/.
+# Pre-download the ~56 MB ONNX segmentation model so cold-starts don't stall
+# pulling it. open-iris caches the model *inside the installed package*
+# (iris/nodes/segmentation/assets/), so it rides along when we COPY /opt/venv
+# into the runtime stage — no extra COPY needed for an HF cache directory.
 RUN /opt/venv/bin/python -c "import iris; iris.IRISPipeline()"
 
-# Copy the backend project and install it editable. Editable install requires
-# the source tree to be present at runtime — we copy it in the runtime stage too.
+# Copy the backend project and install it (NON-editable — editable installs
+# leave a .pth file pointing at the source tree, which would force us to also
+# copy the source into the runtime stage at the same path. Plain install
+# bakes the package into site-packages, so /opt/venv is fully self-contained).
 COPY apps/inference /build/apps/inference
-RUN uv pip install --python /opt/venv/bin/python -e /build/apps/inference
+RUN uv pip install --python /opt/venv/bin/python /build/apps/inference
 
 # ============================================================================
 # Stage 2 — runtime: minimal image with only what's needed to run the server.
@@ -67,14 +71,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Copy the prebuilt venv, pre-warmed model cache, and source tree.
+# Copy the prebuilt venv. It contains both the installed tanik_inference
+# package and the pre-downloaded ONNX model (cached inside open-iris's
+# package directory). No source tree needs to ship to runtime.
 COPY --from=builder /opt/venv /opt/venv
-COPY --from=builder /root/.cache/huggingface /home/tanik/.cache/huggingface
-COPY --from=builder /build/apps/inference /app/apps/inference
 
 # SQLite DB lives in /data so an operator can mount a volume to persist
 # enrolled templates across container restarts. Owned by the non-root user.
-RUN mkdir -p /data && chown -R tanik:tanik /data /home/tanik/.cache /app
+RUN mkdir -p /data && chown -R tanik:tanik /data /app
 
 USER tanik
 ENV HOME=/home/tanik

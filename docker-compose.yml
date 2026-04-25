@@ -1,0 +1,67 @@
+# TANIK local stack.
+# Bring both services up with: docker compose up --build
+# Then: open http://localhost:3000 (client → inference at http://inference:8000)
+
+services:
+  inference:
+    build:
+      context: .
+      dockerfile: apps/inference/Dockerfile
+    image: tanik-inference:dev
+    container_name: tanik-inference
+    restart: unless-stopped
+    environment:
+      # Persist enrolled iris templates across restarts via the named volume below.
+      TANIK_DB_URL: sqlite:////data/tanik.db
+      # The client container reaches the backend via the internal hostname `inference`.
+      # External browser origin is also allowed during local dev.
+      TANIK_CORS_ALLOW_ORIGINS: http://localhost:3000
+      TANIK_LOG_LEVEL: INFO
+      TANIK_IRIS_MATCH_THRESHOLD: "0.37"
+      TANIK_MAX_UPLOAD_BYTES: "10485760"
+    volumes:
+      - inference-data:/data
+    networks:
+      - tanik
+    expose:
+      - "8000"
+    # Optional: expose the backend on the host for direct curl/poking.
+    # Comment out in production.
+    ports:
+      - "8000:8000"
+
+  client:
+    build:
+      context: ./apps/client
+      dockerfile: Dockerfile
+      args:
+        # Baked into the browser bundle at build time. For the compose case
+        # the *user's browser* hits the host-mapped backend on localhost:8000.
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+    image: tanik-client:dev
+    container_name: tanik-client
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # SSR / server-rendered fetches go over the internal bridge network
+      # so the client container can reach the backend even before the host
+      # port mapping is up. Set at runtime, not baked at build.
+      INTERNAL_API_BASE_URL: http://inference:8000
+    networks:
+      - tanik
+    ports:
+      - "3000:3000"
+    depends_on:
+      inference:
+        condition: service_started
+
+networks:
+  tanik:
+    name: tanik
+    driver: bridge
+    # Internal-only network would be `internal: true`, but we keep it routable
+    # so the host can curl the services for debugging in dev.
+
+volumes:
+  inference-data:
+    name: tanik-inference-data

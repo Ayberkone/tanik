@@ -1,0 +1,15 @@
+node_modules
+.next
+.next/cache
+test-results
+playwright-report
+blob-report
+playwright/.cache
+.env*
+!.env.local.example
+!.env.example
+.git
+.gitignore
+.DS_Store
+*.log
+README.md
