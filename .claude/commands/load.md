@@ -1,6 +1,8 @@
-# /resume
+# /load
 
 Open a new chat with this command after a previous session ran `/handoff`. Bootstraps context fast and stops before doing any real work.
+
+> **Naming note.** Originally called `/resume`, but Claude Code has a built-in `/resume` that opens a session picker — the built-in always wins, so the project command never fires. Renamed to `/load` to avoid the collision.
 
 ## Steps
 
@@ -26,7 +28,7 @@ For every task listed in `.claude/session-state.md` (if present), recreate it vi
 
 If `.claude/session-state.md` does not exist (fresh start without prior `/handoff`), skip this step — the user is starting clean.
 
-### 4. Produce the resume summary
+### 4. Produce the load summary
 
 Print, in five sentences:
 
@@ -40,7 +42,7 @@ Then ask: **"Continue with that, or different?"**
 
 ### 5. Wait
 
-Do not start any tool calls beyond the read-only ones above until the user replies. The point of `/resume` is to load context, not to do work.
+Do not start any tool calls beyond the read-only ones above until the user replies. The point of `/load` is to load context, not to do work.
 
 ## Rules
 

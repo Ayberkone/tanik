@@ -229,6 +229,6 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 **In flight:** Nothing. Working tree clean, all commits pushed.
 
-**Next concrete action:** Phase 2 task `#34` — choose and integrate the SourceAFIS Python binding. Naturally chains into `#35` (source a public fingerprint dataset) and `#36` (design the `BiometricEngine` interface so iris and fingerprint share an abstraction). Phase 2 work begins in a fresh chat via `/resume` (per the new session-handoff protocol).
+**Next concrete action:** Phase 2 task `#34` — choose and integrate the SourceAFIS Python binding. Naturally chains into `#35` (source a public fingerprint dataset) and `#36` (design the `BiometricEngine` interface so iris and fingerprint share an abstraction). Phase 2 work begins in a fresh chat via `/load` (per the session-handoff protocol).
 
 > Phase-gate note: starting Phase 2 with `#32`/`#33` still open is a deliberate exception to phase-gate discipline. Author signed off on continuing because deploy is paused on the author's decision, not on a technical blocker — the phase is otherwise shipped.

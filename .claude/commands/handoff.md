@@ -1,6 +1,6 @@
 # /handoff
 
-Close the current session cleanly so a fresh chat can pick up exactly where we left off via `/resume`. Run this when the conversation gets heavy (long tool-call history, slow responses) and you want a fresh context.
+Close the current session cleanly so a fresh chat can pick up exactly where we left off via `/load`. Run this when the conversation gets heavy (long tool-call history, slow responses) and you want a fresh context.
 
 ## Refusal conditions — if any of these are true, stop and tell the user
 
@@ -41,7 +41,7 @@ Write a fresh `.claude/session-state.md` that the new session can read and rebui
 **Last commit:** <SHA> — <subject>
 **Branch:** main (N commits ahead of origin)
 
-## Pending tasks (rebuild via TaskCreate on /resume)
+## Pending tasks (rebuild via TaskCreate on /load)
 
 ### [SIDE]
 - (#11) [SIDE] Execute ND-IRIS-0405 license agreement at cvrl.nd.edu/projects/data
@@ -49,7 +49,7 @@ Write a fresh `.claude/session-state.md` that the new session can read and rebui
 
 ### [P1]
 - (#19) [P1] Structured logging across endpoints
-  — done in commit fa5e764, leave for /resume to verify and mark complete.
+  — done in commit fa5e764, leave for /load to verify and mark complete.
 - ... etc.
 
 ### [P2]
@@ -88,7 +88,7 @@ Session handed off.
 - .claude/session-state.md written (M tasks snapshotted).
 - Auto-memory entries added: <list, or "none">.
 
-Open a new chat and type: /resume
+Open a new chat and type: /load
 ```
 
 Don't say anything after that — the handoff is the end of the session.

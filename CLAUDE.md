@@ -114,13 +114,15 @@ When the user corrects an approach, that is a signal — capture the rule in aut
 
 ### Session handoff when context grows heavy
 
-When the chat history gets long (many tool calls, slow responses), don't try to push through — close the session cleanly via `/handoff` and start a fresh chat with `/resume`. The user's gut is the trigger, not a token threshold.
+When the chat history gets long (many tool calls, slow responses), don't try to push through — close the session cleanly via `/handoff` and start a fresh chat with `/load`. The user's gut is the trigger, not a token threshold.
 
-The handoff baton is `.claude/session-state.md` (gitignored — it's a baton, not history). `/handoff` writes it; `/resume` reads it and rebuilds the in-session task list. `ROADMAP.md` "Current status" is the durable, committed record; the session-state file just bridges the per-session task tracker.
+The handoff baton is `.claude/session-state.md` (gitignored — it's a baton, not history). `/handoff` writes it; `/load` reads it and rebuilds the in-session task list. `ROADMAP.md` "Current status" is the durable, committed record; the session-state file just bridges the per-session task tracker.
 
 What persists for free across sessions: `CLAUDE.md`, `ROADMAP.md`, `BACKLOG.md`, `.claude/` tooling, git history, and auto-memory. What does not: TaskCreate state, uncommitted changes, in-flight reasoning. `/handoff` captures the things that don't.
 
-See `.claude/commands/handoff.md` and `.claude/commands/resume.md` for what each step does.
+> The new-session command is `/load`, not `/resume` — Claude Code has a built-in `/resume` that opens a session picker, which always wins over a project-level command of the same name.
+
+See `.claude/commands/handoff.md` and `.claude/commands/load.md` for what each step does.
 
 ---
 
