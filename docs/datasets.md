@@ -45,4 +45,17 @@ Every biometric dataset referenced anywhere in this repo, with its source, licen
 
 ## Fingerprint datasets
 
-Deferred to Phase 2. Will be added here when that phase begins.
+### NIST MINEX III validation imagery
+
+- **Composition used in Phase 2 tests:** six grayscale plain-impression images sampled from `usnistgov/minex/minexiii/validation/validation_imagery_raw`. Three from subject `a001` (right index, right middle, right ring) and three from subject `a002` (right index, right middle, left index). Sufficient for "different fingers do not match" assertions; not sufficient for "same finger matches an independent capture", because the MINEX validation set ships only one impression per finger.
+- **Format:** 8-bit raw grayscale (`.gray`), 500 dpi, dimensions vary per image (width/height encoded in `minexiii_validation_data.h`). Converted to PNG in the test fixture before being passed to SourceAFIS.
+- **Primary source:** https://github.com/usnistgov/minex/tree/master/minexiii/validation/validation_imagery_raw
+- **License / terms:** NIST works are not subject to copyright (17 USC §105) and are in the U.S. public domain. Royalty-free worldwide redistribution and modification, with attribution to NIST. License text: https://github.com/usnistgov/minex/blob/master/LICENSE.md
+- **Role here:** Phase 2 binding + discrimination tests for the SourceAFIS / JPype engine. The `tests/conftest.py` `fingerprint_bytes` fixture downloads these into a gitignored cache (`tests/fixtures/_cache/`) on first run, mirroring the iris-fixture pattern. They are **not redistributed via this repository**.
+- **Out of scope here:** MINEX validation has no within-finger pairs, so Phase 3 evaluation cannot use it for genuine-vs-impostor scoring. That dataset (FVC-style or similar with multiple impressions per finger) is captured in `BACKLOG.md` as the dataset gap to close before Phase 3.
+
+## Planned (access in progress) — fingerprint
+
+### FVC2002 / FVC2004 DB1_B (free subsets)
+
+- **Status:** noted as the natural Phase 3 candidate for genuine/impostor pairs. The competition's "B" subsets are widely treated as freely usable for academic research; the FVC website is no longer authoritative, so any use must verify the licence wording at acquisition time. Not vendored, not yet referenced in tests.

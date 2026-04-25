@@ -36,3 +36,7 @@ Why this matters: the entire credibility pitch of TANIK is honest, NIST-style be
 ## ND-IRIS-0405 license agreement — execution
 
 Adam confirmed (2026-04-25) that the dataset is requestable via the formal license agreement process at https://cvrl.nd.edu/projects/data/. This is the long-pole for Phase 3 evaluation; TANIK cannot ship measured FAR/FRR numbers without a real iris dataset. Tracked as an active SIDE task — see the task list — not as backlog.
+
+## Fingerprint dataset gap for Phase 3 — same-finger pairs
+
+Phase 2 uses NIST MINEX III validation imagery for fingerprint tests (see `docs/datasets.md`). MINEX validation has only one impression per finger, so Phase 2 tests can only assert the **negative** ("different fingers do not match") and the trivial positive ("identical bytes match identical bytes"). Honest genuine-vs-impostor scoring needs multiple impressions per finger — the FVC2002 / FVC2004 DB1_B "B" subsets are the standard candidates, with about 80 images each (10 fingers × 8 impressions). The original FVC website is no longer authoritative; sourcing must verify the licence at acquisition time. Required before any FAR/FRR fingerprint number is reported in Phase 3.
