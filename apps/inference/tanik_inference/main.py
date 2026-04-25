@@ -8,7 +8,7 @@ from .config import settings
 from .db import init_db
 from .errors import register_exception_handlers
 from .logging import log, setup_logging
-from .routes import health, iris
+from .routes import fingerprint, health, iris
 
 setup_logging(settings.log_level)
 init_db()
@@ -54,3 +54,4 @@ register_exception_handlers(app)
 
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(iris.router, prefix="/api/v1")
+app.include_router(fingerprint.router, prefix="/api/v1")

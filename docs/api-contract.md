@@ -1,6 +1,6 @@
 # API contract — TANIK Inference
 
-Version: **v1, iris-only** (Phase 1).
+Version: **v1, iris + fingerprint** (Phase 2; iris alone shipped in Phase 1, fingerprint added in Phase 2).
 
 This document is the source of truth. The FastAPI implementation in `apps/inference/` and the Next.js client in `apps/client/` both read from this. If the implementation diverges, the implementation is wrong — fix the code, not the doc, unless the contract change is explicit and this doc is updated in the same commit.
 
@@ -32,10 +32,10 @@ Subjects are server-managed. The client never invents an identifier:
 | Field name (multipart) | `image` |
 | Allowed MIME (magic-byte verified, not header-trusted) | `image/png`, `image/jpeg`, `image/bmp` |
 | Max size | 10 MB |
-| Color | grayscale or 3-channel — server converts to grayscale before passing to the iris pipeline |
-| Resolution | no hard limit; very small images will fail the pipeline and return `PIPELINE_FAILURE` |
+| Color | grayscale or 3-channel — engines convert internally as needed |
+| Resolution | no hard limit; very small or low-quality images may fail the pipeline and return `PIPELINE_FAILURE` |
 
-**Raw images are never persisted.** They live only in request-scoped memory. Only the extracted iris template is stored.
+**Raw images are never persisted.** They live only in request-scoped memory. Only the extracted biometric template is stored.
 
 ## Endpoints
 
@@ -107,7 +107,66 @@ Compares a fresh iris capture against the stored template for a known subject (1
 
 - `hamming_distance` is the raw masked fractional Hamming distance from `iris.HammingDistanceMatcher` (0 = identical, ~0.5 = independent random codes). Lower is better.
 - `matched` is exactly `hamming_distance < threshold`.
-- `threshold` is server-configured (env var `IRIS_MATCH_THRESHOLD`, default `0.37`). Returned for client transparency; the client must not invent its own threshold.
+- `threshold` is server-configured (env var `TANIK_IRIS_MATCH_THRESHOLD`, default `0.37`). Returned for client transparency; the client must not invent its own threshold.
+
+### `POST /api/v1/fingerprint/enroll`
+
+Accepts a fingerprint capture, runs the SourceAFIS extractor, stores the resulting template under a newly-created subject.
+
+**Request** — `multipart/form-data`:
+
+| field | type | required | notes |
+|---|---|---|---|
+| `image` | file | yes | fingerprint capture, see image constraints |
+| `display_name` | string | no | UX-only label, ≤ 64 chars; not an identifier |
+| `finger_position` | string | no | one of the 10 ISO-style positions: `right_thumb`, `right_index`, `right_middle`, `right_ring`, `right_little`, `left_thumb`, `left_index`, `left_middle`, `left_ring`, `left_little`. Defaults to `right_index` |
+
+**Response** — 201 Created:
+
+```json
+{
+  "request_id": "5b2d…",
+  "subject_id":  "9f4c…",
+  "display_name": "Alice",
+  "finger_position": "right_index",
+  "enrolled_at": "2026-04-25T14:32:09+00:00",
+  "modality": "fingerprint",
+  "template_version": "sourceafis/3.18.1"
+}
+```
+
+The template itself is **not** returned. It is server-side state.
+
+### `POST /api/v1/fingerprint/verify`
+
+Compares a fresh fingerprint capture against the stored template for a known subject (1:1).
+
+**Request** — `multipart/form-data`:
+
+| field | type | required | notes |
+|---|---|---|---|
+| `image` | file | yes | fingerprint capture, see image constraints |
+| `subject_id` | string | yes | UUID returned by a prior fingerprint enroll |
+| `finger_position` | string | no | optional; the engine does not actually require it (fingerprint matchers are position-agnostic at scoring time), but the field is accepted for symmetry with iris and may be used in future analytics |
+
+**Response** — 200 OK:
+
+```json
+{
+  "request_id": "7a0e…",
+  "subject_id":  "9f4c…",
+  "modality": "fingerprint",
+  "matched": true,
+  "similarity_score": 184.2,
+  "threshold": 40.0,
+  "decision_at": "2026-04-25T14:32:11+00:00"
+}
+```
+
+- `similarity_score` is SourceAFIS's similarity metric. **Higher is better; 0 means no match; the upper bound is open-ended** (typical self-match scores are in the hundreds). Note that this is the inverse direction of the iris `hamming_distance`.
+- `matched` is exactly `similarity_score >= threshold`.
+- `threshold` is server-configured (env var `TANIK_FINGERPRINT_MATCH_THRESHOLD`, default `40.0`, which corresponds to FMR=0.01% per [SourceAFIS's documented threshold](https://sourceafis.machinezoo.com/threshold)).
+- `subject_id` returns 404 `SUBJECT_NOT_FOUND` if the subject does not exist *or* if its modality is not `fingerprint` — cross-modality lookups are deliberately invisible to a probing client.
 
 ## Error model
 
@@ -148,8 +207,8 @@ These are out of scope; do not emulate or stub them in the client:
 
 - **Authentication / authorization.** Single-deployment, no users. Added when needed (Phase 4/5).
 - **1:N identification.** No "find the matching subject" endpoint. Verify is always 1:1.
-- **Fingerprint** — Phase 2.
-- **Fused decisions** — Phase 3. v1 returns raw Hamming distance; the eventual unified `/api/v1/verify` endpoint and fused score arrive in Phase 3.
+- **Fused decisions** — Phase 3. v1 returns engine-native scores per modality (Hamming distance for iris, similarity for fingerprint); the unified `/api/v1/verify` endpoint with fused, normalised scoring arrives in Phase 3.
+- **Cross-modality enrolment under the same subject.** Each enrol creates its own subject row tagged with one modality; one human enrolling both iris and fingerprint produces two distinct `subject_id`s. Linking is deferred along with template aggregation.
 - **Liveness / PAD** — Phase 4. The `PAD_FAILURE` error code is reserved but not emitted.
 - **Subject deletion / template export.** Will be added when there is a concrete need; not before.
 - **Multiple templates per subject (template aggregation).** Captured in `BACKLOG.md`.

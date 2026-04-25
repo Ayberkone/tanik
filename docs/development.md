@@ -54,6 +54,7 @@ All optional, prefixed `TANIK_`:
 | `TANIK_CORS_ALLOW_ORIGINS` | `http://localhost:3000` | comma-separated; no wildcards |
 | `TANIK_DB_URL` | `sqlite:///./tanik.db` | SQLAlchemy URL; `:memory:` for tests |
 | `TANIK_IRIS_MATCH_THRESHOLD` | `0.37` | Hamming distance below which iris verify returns `matched: true` |
+| `TANIK_FINGERPRINT_MATCH_THRESHOLD` | `40.0` | SourceAFIS similarity at or above which fingerprint verify returns `matched: true` (FMR=0.01% per upstream) |
 | `TANIK_MAX_UPLOAD_BYTES` | `10485760` | reject uploads larger than this with 413 |
 
 ### Java runtime (Phase 2 onwards)

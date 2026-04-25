@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     cors_allow_origins: List[str] = ["http://localhost:3000"]
     db_url: str = "sqlite:///./tanik.db"
     iris_match_threshold: float = 0.37
+    fingerprint_match_threshold: float = 40.0
     max_upload_bytes: int = 10 * 1024 * 1024
 
     class Config:
