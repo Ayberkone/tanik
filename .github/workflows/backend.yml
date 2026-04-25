@@ -46,5 +46,6 @@ jobs:
 
       - name: Run tests
         env:
-          TANIK_DB_URL: sqlite:///:memory:
+          # Quoted because the colons in sqlite:///:memory: confuse YAML.
+          TANIK_DB_URL: "sqlite:///:memory:"
         run: .venv/bin/pytest apps/inference/tests -v
