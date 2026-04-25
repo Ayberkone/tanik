@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any, Dict, Iterator, Optional
 
-from sqlalchemy import String, create_engine
+from sqlalchemy import LargeBinary, String, create_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -32,10 +32,11 @@ class Subject(Base):
     __tablename__ = "subjects"
     subject_id: Mapped[str] = mapped_column(String(36), primary_key=True)
     display_name: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    eye_side: Mapped[str] = mapped_column(String(8))
+    modality: Mapped[str] = mapped_column(String(16))
     enrolled_at: Mapped[datetime]
     template_version: Mapped[str] = mapped_column(String(64))
-    template_json: Mapped[str] = mapped_column()
+    template_bytes: Mapped[bytes] = mapped_column(LargeBinary)
+    metadata_json: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
 
 
 def init_db() -> None:

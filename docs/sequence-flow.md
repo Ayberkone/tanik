@@ -57,8 +57,8 @@ sequenceDiagram
     C->>S: serverProcessing() — UPLOADING → PROCESSING
     B->>B: validate_image_bytes (magic-byte check)
     B->>M: run_in_threadpool(encode)
-    M-->>B: IrisTemplate
-    B->>D: INSERT subject (subject_id, template_json, ...)
+    M-->>B: template_bytes (engine-serialized)
+    B->>D: INSERT subject (subject_id, modality, template_bytes, metadata_json, ...)
     B-->>A: 201 EnrollResponse {subject_id, template_version, ...}
     A-->>C: EnrollResult
     C->>S: enrollSucceeded(result) — PROCESSING → SUCCESS
@@ -124,14 +124,14 @@ sequenceDiagram
     A->>B: POST /api/v1/iris/verify (multipart)
     C->>S: serverProcessing() — UPLOADING → PROCESSING
     B->>B: validate_image_bytes
-    B->>D: SELECT template_json FROM subjects WHERE subject_id = ?
-    alt subject not found
+    B->>D: SELECT modality, template_bytes FROM subjects WHERE subject_id = ?
+    alt subject not found, or modality != "iris"
         D-->>B: null
         B-->>A: 404 {error_code: SUBJECT_NOT_FOUND}
     else found
-        D-->>B: template_json
+        D-->>B: template_bytes
         B->>M: run_in_threadpool(encode probe)
-        M-->>B: probe IrisTemplate
+        M-->>B: probe template_bytes
         B->>M: run_in_threadpool(match probe vs gallery)
         M-->>B: hamming_distance: float
         B-->>A: 200 VerifyResponse {matched, hamming_distance, threshold, ...}

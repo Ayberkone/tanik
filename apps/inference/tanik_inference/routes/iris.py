@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, File, Form, Request, UploadFile, status
-from fastapi.responses import JSONResponse
 
 from .. import iris_engine, storage
 from ..config import settings
@@ -31,10 +30,10 @@ async def enroll(
     data = await image.read()
     validate_image_bytes(data)
 
-    template, error_message = await iris_engine.encode(
+    template_bytes, error_message = await iris_engine.encode(
         data, eye_side=eye_side.value, image_id=f"enroll:{_request_id(request)}"
     )
-    if template is None:
+    if template_bytes is None:
         raise APIError(
             500,
             ErrorCode.PIPELINE_FAILURE,
@@ -43,16 +42,17 @@ async def enroll(
         )
 
     row = storage.create_subject(
-        template=template,
-        eye_side=eye_side.value,
-        display_name=display_name,
+        template_bytes=template_bytes,
+        modality=iris_engine.name,
         template_version=iris_engine.template_version(),
+        display_name=display_name,
+        metadata={"eye_side": eye_side.value},
     )
     return EnrollResponse(
         request_id=_request_id(request),
         subject_id=row.subject_id,
         display_name=row.display_name,
-        eye_side=EyeSide(row.eye_side),
+        eye_side=eye_side,
         enrolled_at=row.enrolled_at,
         modality=Modality.IRIS,
         template_version=row.template_version,
@@ -69,17 +69,17 @@ async def verify(
     data = await image.read()
     validate_image_bytes(data)
 
-    gallery = storage.get_template(subject_id)
-    if gallery is None:
-        raise APIError(404, ErrorCode.SUBJECT_NOT_FOUND, f"No subject with id {subject_id}")
-
     subject_row = storage.get_subject(subject_id)
-    use_eye = (eye_side or EyeSide(subject_row.eye_side)).value
+    if subject_row is None or subject_row.modality != iris_engine.name:
+        raise APIError(404, ErrorCode.SUBJECT_NOT_FOUND, f"No iris subject with id {subject_id}")
 
-    probe, error_message = await iris_engine.encode(
+    enrolled_eye = storage.get_metadata(subject_row).get("eye_side", EyeSide.LEFT.value)
+    use_eye = (eye_side.value if eye_side else enrolled_eye)
+
+    probe_bytes, error_message = await iris_engine.encode(
         data, eye_side=use_eye, image_id=f"verify:{_request_id(request)}"
     )
-    if probe is None:
+    if probe_bytes is None:
         raise APIError(
             500,
             ErrorCode.PIPELINE_FAILURE,
@@ -87,7 +87,7 @@ async def verify(
             details={"stage": "encode"},
         )
 
-    distance = await iris_engine.match(probe, gallery)
+    distance = await iris_engine.match(probe_bytes, subject_row.template_bytes)
     return VerifyResponse(
         request_id=_request_id(request),
         subject_id=subject_id,

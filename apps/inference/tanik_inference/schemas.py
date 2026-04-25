@@ -12,6 +12,7 @@ class EyeSide(str, Enum):
 
 class Modality(str, Enum):
     IRIS = "iris"
+    FINGERPRINT = "fingerprint"
 
 
 class EnrollResponse(BaseModel):

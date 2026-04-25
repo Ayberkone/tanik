@@ -30,8 +30,8 @@ Walk the request through the layers in order:
 2. **Validator** (`validators.validate_image_bytes`) — does magic-byte check accept/reject correctly?
 3. **Pydantic model** (`schemas.py`) — Form/File parsing succeeds? validation errors mapped via `ErrorBody`?
 4. **Route handler** (`routes/iris.py`) — request_id propagated to response?
-5. **Iris engine** (`iris_engine.encode` / `match`) — wrapped in `run_in_threadpool`? pipeline `error` field surfaced?
-6. **Storage** (`storage.create_subject` / `get_template`) — round-trip via `IrisTemplate.serialize/deserialize` preserves the template?
+5. **Engine** (`iris_engine` / `fingerprint_engine`, both satisfy `engines.BiometricEngine`) — `encode` / `match` wrapped in `run_in_threadpool`? engine error field surfaced?
+6. **Storage** (`storage.create_subject` / `get_template`) — modality-agnostic; templates round-trip as `bytes`. Each engine owns its own serialize/deserialize.
 7. **Response** — matches the shape in `docs/api-contract.md`?
 
 Read the actual code at each layer; do not assume.

@@ -18,6 +18,8 @@ from fastapi.concurrency import run_in_threadpool
 
 from .vendor import sourceafis_jar_path
 
+name = "fingerprint"
+
 _SOURCEAFIS_VERSION = "3.18.1"
 
 _jvm_started = False
@@ -52,7 +54,7 @@ def _encode_sync(image_bytes: bytes) -> Tuple[Optional[bytes], Optional[str]]:
         return None, str(exc)
 
 
-async def encode(image_bytes: bytes) -> Tuple[Optional[bytes], Optional[str]]:
+async def encode(image_bytes: bytes, **_: object) -> Tuple[Optional[bytes], Optional[str]]:
     return await run_in_threadpool(_encode_sync, image_bytes)
 
 
