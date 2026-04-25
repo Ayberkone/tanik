@@ -38,3 +38,20 @@ Environment variables (all optional, prefixed `TANIK_`):
 ```bash
 .venv/bin/pytest apps/inference/tests
 ```
+
+## Docker
+
+Multi-stage build at `apps/inference/Dockerfile`. Runs as a non-root `tanik` user; SQLite DB lives at `/data/tanik.db` so an operator can mount a volume to persist enrolled templates across restarts. The ONNX iris segmentation model is pre-downloaded during the builder stage to keep cold-start fast.
+
+```bash
+# build (run from repo root so the build context contains apps/inference/)
+docker build -f apps/inference/Dockerfile -t tanik-inference:dev .
+
+# run with a persistent DB volume + the default port
+docker run --rm -p 8000:8000 -v tanik-data:/data tanik-inference:dev
+
+# health check
+curl http://localhost:8000/api/v1/health
+```
+
+The `docker-compose.yml` at the repo root wires this image alongside the Next.js client on an internal bridge network.
