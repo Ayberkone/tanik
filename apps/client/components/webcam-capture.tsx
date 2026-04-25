@@ -45,6 +45,12 @@ export function WebcamCapture({
     if (!video) return
 
     if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      // Capability check is intentionally a one-shot setState inside the
+      // effect: a useState initializer would diverge between SSR (no
+      // navigator) and hydration, triggering a mismatch. The cascading-
+      // render concern the rule targets does not apply — we set once and
+      // return without further updates this tick.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('unsupported')
       onError?.('Browser does not expose camera APIs (getUserMedia missing).')
       return

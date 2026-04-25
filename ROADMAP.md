@@ -201,8 +201,27 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 ## Current status
 
-**Phase:** 0 complete, Phase 1 ready to start.
+**Phase:** 1 — implementation complete; deploy + browser DoD verification deferred per author decision.
 
-**Phase 0 result:** `notebooks/00_iris_spike.ipynb` runs top-to-bottom on a fresh `uv`-managed Python 3.10 venv with `open-iris` (SERVER profile). 24 same-eye pairs and 96 different-eye pairs across 4 MMU subjects produced zero overlap: same-eye Hamming distances span 0.05–0.28, different-eye span 0.41–0.48, every pair lands on the correct side of the 0.37 operating threshold. Env setup is documented in `notebooks/README.md`; dataset provenance in `docs/datasets.md`.
+**Phase 1 implementation status (16 / 17 tasks done):**
+- ✅ API contract locked (`docs/api-contract.md`)
+- ✅ FastAPI backend: `/iris/enroll`, `/iris/verify`, `/health`; magic-byte uploads; SQLAlchemy 2 / SQLite storage; iris pipeline isolated in `run_in_threadpool`; Pydantic v1 settings via `TANIK_*` env vars
+- ✅ Backend tests: 15 pytest, including endpoint-level + storage round-trip + validators
+- ✅ Backend CI: `.github/workflows/backend.yml` (uv + Python 3.10 + open-iris SERVER profile + HF cache)
+- ✅ Backend Dockerfile: multi-stage, model pre-warmed, non-root user, healthcheck
+- ✅ Next.js client: App Router + TS strict + Tailwind 4 + shadcn/ui + Zustand
+- ✅ Capture state machine: strict `IDLE → CAPTURING → UPLOADING → PROCESSING → SUCCESS|FAILED`
+- ✅ Webcam component: MediaStreamTrack lifecycle cleanup honored
+- ✅ Enroll + verify flows: forms, image source picker (camera / file), result + error panels, deep-link from enroll → verify
+- ✅ Client Dockerfile: multi-stage standalone Next, non-root
+- ✅ Playwright e2e: 7 tests, all green; client CI workflow
+- ✅ `docker compose up --build` brings the full stack up; verified end-to-end via curl with real iris fixtures (matched HD ≈ 0.148, non-match HD ≈ 0.450)
+- ✅ `docs/sequence-flow.md` (Mermaid) and `docs/development.md`
+- ✅ Honest metrics posture in README and contract
+- ⏳ Structured logging polish (`#19`) — current logging is functional, formatting upgrade deferred
+- ⏳ Deploy to a public URL (`#32`) — paused per author; deploy split is Vercel (client) + Railway (backend), to be wired when ready
+- ⏳ Phase 1 DoD verification (`#33`) — needs a real browser run of webcam capture (the only test I cannot author from a CLI session) and the deploy URL
 
-**Next action:** Phase 1 — scaffold the FastAPI inference service (`POST /api/v1/iris/enroll`, `POST /api/v1/iris/verify`) and a minimal Next.js client, wired together via Docker Compose.
+**Phase 1 is functionally complete and locally verified.** The remaining items are deployment-gated and a single browser-side verification step.
+
+**Next action:** Author's choice — finish Phase 1 (deploy + browser verification) before starting Phase 2, per the phase-gate discipline. Phase 2 work (SourceAFIS, fingerprint dataset, BiometricEngine refactor) does not start until Phase 1 ships.

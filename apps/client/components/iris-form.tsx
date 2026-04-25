@@ -110,6 +110,9 @@ export function IrisForm({ onImage, onError, preview, disabled, className }: Iri
       {previewUrl && (
         <figure className="rounded-md border bg-card p-2">
           <p className="mb-2 text-xs font-medium text-muted-foreground">Selected image</p>
+          {/* In-memory blob URL — next/image cannot optimize these and would
+              warn about missing dimensions. Plain <img> is correct here. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={previewUrl}
             alt="Selected iris capture preview"
