@@ -121,6 +121,7 @@ tanik/
 ├── ROADMAP.md
 ├── BACKLOG.md
 ├── CHANGELOG.md
+├── OWNER-ACTIONS.md         # Things only the human owner can do
 └── README.md
 ```
 
