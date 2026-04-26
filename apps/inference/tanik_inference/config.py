@@ -12,6 +12,15 @@ class Settings(BaseSettings):
     fingerprint_match_threshold: float = 40.0
     max_upload_bytes: int = 10 * 1024 * 1024
 
+    # Fusion parameters — placeholder values, see docs/fusion.md.
+    # Will be re-derived from a held-out calibration set in Phase 3 #43.
+    iris_hd_floor: float = 0.0
+    iris_hd_ceil: float = 0.5
+    fingerprint_score_ceil: float = 200.0
+    fusion_iris_weight: float = 0.5
+    fusion_fingerprint_weight: float = 0.5
+    fusion_decision_threshold: float = 0.5
+
     class Config:
         env_prefix = "TANIK_"
         env_file = ".env"

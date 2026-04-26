@@ -201,10 +201,15 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 ## Current status
 
-**Phase:** 2 — implementation complete and CI-verified green. Phase 1 deploy + DoD walkthrough still deferred per author decision.
+**Phase:** 3 — first endpoint (`#41`) implementation complete locally, CI verification pending. Phase 2 closed and CI-verified green; Phase 1 deploy + DoD walkthrough still deferred per author decision.
 
-**Last commit:** `ba85e81` ci(backend): surface pytest failures as public annotations + harden JPype calls
-**Branch:** `main`, in sync with `origin/main`.
+**Last local commit (pre-Phase-3 push):** `d3c9fff` docs(roadmap): Phase 2 shipped — backend CI green at ba85e81 (#10)
+**Branch:** `main`.
+
+**Phase 3 progress:**
+- ✅ `#41` Score normalisation + unified `POST /api/v1/verify` (local). Piecewise-linear normalisation anchored at the per-modality threshold (engine-native threshold → normalised 0.5), weighted-sum fusion with weights renormalised over the modalities present in the request. New endpoint accepts iris-only, fingerprint-only, or both; returns fused decision plus per-modality breakdown plus an in-band `calibration_status: "placeholder"` honesty signal. New `docs/fusion.md` documents the methodology, the reference (Ross & Jain 2003), and the explicit caveat that weights are placeholder until #43 ships measured numbers. `docs/api-contract.md` updated with the new endpoint definition. New tests: `test_fusion.py` (18 unit tests on the pure normalisation/fusion math) and `test_unified_verify.py` (9 integration tests; skip-guarded on JPype/JVM availability like the existing fingerprint suite). 39 backend tests passing locally; 22 skip on Mac without JVM and run on CI.
+- ⏳ `#42` Threshold-slider UI on a debug page — not started.
+- ⏳ `#43` `tests/evaluation/` FAR/FRR/ROC harness — not started; hard-blocked on dataset acquisition (`#11` ND-IRIS-0405 + FVC-style same-finger pairs).
 
 **Phase 2 implementation (7 of 7 tasks complete):**
 - ✅ SourceAFIS Python binding picked + vendored: JPype1 1.7.0 + sourceafis-java 3.18.1 (Apache 2.0, Maven Central, 181 KB JAR vendored at `apps/inference/tanik_inference/vendor/`). In-process JVM via JPype, mirrors `iris_engine`'s threadpool-offloaded shape (`#34`).
@@ -222,9 +227,9 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 **Open user-action items (SIDE):**
 - `#11` Execute ND-IRIS-0405 license agreement at https://cvrl.nd.edu/projects/data — Adam Czajka confirmed access path 2026-04-25; required for Phase 3 evaluation.
 
-**In flight:** Nothing. Working tree clean, all commits pushed.
+**In flight:** Phase 3 #41 implementation complete locally (uncommitted on this branch). Commit + push + CI verification next.
 
-**Next concrete action:** Phase 3 task `#41` — score normalisation + a unified `POST /api/v1/verify` endpoint. Naturally chains into a `docs/fusion.md` write-up of the calibration methodology and the `tests/evaluation/` harness that produces FAR/FRR numbers for `docs/performance.md`. Phase 3 is gated on the ND-IRIS-0405 dataset (`#11`, SIDE) and an FVC-style fingerprint dataset (BACKLOG); both are real-world acquisition tasks, not coding tasks. Without them, evaluation cannot ship measured numbers honestly. Phase 3 work begins in a fresh chat via `/load`.
+**Next concrete action:** commit + push the #41 work, watch backend CI on `main`, then move to `#42` (threshold-slider UI on a debug page in `apps/client/`). `#43` (evaluation harness) remains hard-blocked on `#11` ND-IRIS-0405 + an FVC-style fingerprint dataset; until then `calibration_status` in unified-verify responses stays at `placeholder`.
 
 **Honest gap noted in DoD walkthrough:** the literal "same finger across two impressions matches" assertion is not verified. The MINEX validation set ships only one impression per finger, so the test suite covers (a) self-match (identical bytes) and (b) different-finger pairs across subjects. Genuine vs impostor pairing needs an FVC-style dataset, recorded in `BACKLOG.md` as a Phase 3 prerequisite.
 

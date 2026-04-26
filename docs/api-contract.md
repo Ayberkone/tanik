@@ -1,6 +1,6 @@
 # API contract — TANIK Inference
 
-Version: **v1, iris + fingerprint** (Phase 2; iris alone shipped in Phase 1, fingerprint added in Phase 2).
+Version: **v1, iris + fingerprint + fused verify** (Phase 3 in progress; iris alone shipped in Phase 1, fingerprint added in Phase 2, unified `POST /api/v1/verify` added in Phase 3 #41 with placeholder calibration).
 
 This document is the source of truth. The FastAPI implementation in `apps/inference/` and the Next.js client in `apps/client/` both read from this. If the implementation diverges, the implementation is wrong — fix the code, not the doc, unless the contract change is explicit and this doc is updated in the same commit.
 
@@ -168,6 +168,60 @@ Compares a fresh fingerprint capture against the stored template for a known sub
 - `threshold` is server-configured (env var `TANIK_FINGERPRINT_MATCH_THRESHOLD`, default `40.0`, which corresponds to FMR=0.01% per [SourceAFIS's documented threshold](https://sourceafis.machinezoo.com/threshold)).
 - `subject_id` returns 404 `SUBJECT_NOT_FOUND` if the subject does not exist *or* if its modality is not `fingerprint` — cross-modality lookups are deliberately invisible to a probing client.
 
+### `POST /api/v1/verify`
+
+Unified, fused 1:1 verification across iris and fingerprint. Accepts either modality alone or both in a single multipart upload. Each engine-native score is normalised to `[0, 1]` (`0 = no match, 1 = perfect match`); the fused decision is a weighted sum across the modalities supplied. See `docs/fusion.md` for the normalisation curves, weights, and the explicit honesty caveat that the current calibration is **placeholder** until Phase 3 #43 ships measured weights.
+
+**Request** — `multipart/form-data`. At least one modality must be supplied; `image` and `subject_id` for a given modality must be supplied together (a half-supplied modality is a 400 `VALIDATION_ERROR`):
+
+| field | type | required | notes |
+|---|---|---|---|
+| `iris_image` | file | conditional | iris capture; required if `iris_subject_id` is present |
+| `iris_subject_id` | string | conditional | UUID returned by a prior iris enroll; required if `iris_image` is present |
+| `iris_eye_side` | string | no | `"left"` or `"right"`; defaults to the eye_side recorded at enroll |
+| `fingerprint_image` | file | conditional | fingerprint capture; required if `fingerprint_subject_id` is present |
+| `fingerprint_subject_id` | string | conditional | UUID returned by a prior fingerprint enroll; required if `fingerprint_image` is present |
+| `fingerprint_finger_position` | string | no | accepted for symmetry; not used by the matcher |
+
+A wrong-modality `subject_id` (e.g. an iris subject_id passed as `fingerprint_subject_id`) returns 404 `SUBJECT_NOT_FOUND`, identical to the per-modality endpoints.
+
+**Response** — 200 OK:
+
+```json
+{
+  "request_id": "7a0e…",
+  "matched": true,
+  "fused_score": 0.78,
+  "threshold": 0.5,
+  "modalities": [
+    {
+      "modality": "iris",
+      "subject_id": "9f4c…",
+      "engine_native_score": 0.124,
+      "normalised_score": 0.876,
+      "weight": 0.5
+    },
+    {
+      "modality": "fingerprint",
+      "subject_id": "1d2a…",
+      "engine_native_score": 184.2,
+      "normalised_score": 0.71,
+      "weight": 0.5
+    }
+  ],
+  "calibration_status": "placeholder",
+  "calibration_reference": "docs/fusion.md",
+  "decision_at": "2026-04-25T14:32:11+00:00"
+}
+```
+
+- `engine_native_score` — Hamming distance for iris (lower=better, `[0, 1]`) or SourceAFIS similarity for fingerprint (higher=better, open-ended). Same semantics as the per-modality verify responses.
+- `normalised_score` — engine-native value mapped onto `[0, 1]` per `docs/fusion.md`.
+- `weight` — the renormalised weight this modality contributed to the fused score *for this request*. With only one modality supplied, `weight` is `1.0` and `fused_score` equals `normalised_score`.
+- `matched` — exactly `fused_score >= threshold`. Threshold is server-configured (`TANIK_FUSION_DECISION_THRESHOLD`, default `0.5`).
+- `calibration_status` — `"placeholder"` until Phase 3 #43 publishes measured weights, then `"calibrated"`. Clients that need measured FAR/FRR must refuse a placeholder response.
+- `calibration_reference` — path to the doc describing the active calibration, currently `docs/fusion.md`.
+
 ## Error model
 
 All non-2xx responses return:
@@ -207,7 +261,7 @@ These are out of scope; do not emulate or stub them in the client:
 
 - **Authentication / authorization.** Single-deployment, no users. Added when needed (Phase 4/5).
 - **1:N identification.** No "find the matching subject" endpoint. Verify is always 1:1.
-- **Fused decisions** — Phase 3. v1 returns engine-native scores per modality (Hamming distance for iris, similarity for fingerprint); the unified `/api/v1/verify` endpoint with fused, normalised scoring arrives in Phase 3.
+- **Calibrated fused decisions** — the unified `/api/v1/verify` endpoint exists (Phase 3 #41) but currently runs on placeholder weights and normalisation knobs. Measured FAR/FRR and tuned weights ship with Phase 3 #43.
 - **Cross-modality enrolment under the same subject.** Each enrol creates its own subject row tagged with one modality; one human enrolling both iris and fingerprint produces two distinct `subject_id`s. Linking is deferred along with template aggregation.
 - **Liveness / PAD** — Phase 4. The `PAD_FAILURE` error code is reserved but not emitted.
 - **Subject deletion / template export.** Will be added when there is a concrete need; not before.

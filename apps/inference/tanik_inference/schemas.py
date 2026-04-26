@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -73,4 +73,42 @@ class FingerprintVerifyResponse(BaseModel):
     matched: bool
     similarity_score: float = Field(..., ge=0.0, description="SourceAFIS similarity, higher is better, open-ended")
     threshold: float = Field(..., ge=0.0)
+    decision_at: datetime
+
+
+class CalibrationStatus(str, Enum):
+    """Whether the fusion weights/thresholds in use are calibrated.
+
+    ``placeholder`` means the values are honest defaults chosen so the system
+    can run end-to-end, *not* tuned on a calibration set. See docs/fusion.md.
+    ``calibrated`` will appear once Phase 3 #43 ships measured weights.
+    """
+
+    PLACEHOLDER = "placeholder"
+    CALIBRATED = "calibrated"
+
+
+class ModalityResult(BaseModel):
+    modality: Modality
+    subject_id: str
+    engine_native_score: float = Field(
+        ...,
+        description=(
+            "Score in the engine's native scale: iris is masked fractional "
+            "Hamming distance (lower=better, [0,1]); fingerprint is "
+            "SourceAFIS similarity (higher=better, open-ended)."
+        ),
+    )
+    normalised_score: float = Field(..., ge=0.0, le=1.0, description="0=no match, 1=perfect match")
+    weight: float = Field(..., ge=0.0, le=1.0, description="Renormalised over the modalities supplied in this request")
+
+
+class UnifiedVerifyResponse(BaseModel):
+    request_id: str
+    matched: bool
+    fused_score: float = Field(..., ge=0.0, le=1.0)
+    threshold: float = Field(..., ge=0.0, le=1.0)
+    modalities: List[ModalityResult]
+    calibration_status: CalibrationStatus
+    calibration_reference: str = Field(..., description="Path to the document explaining the active calibration")
     decision_at: datetime
