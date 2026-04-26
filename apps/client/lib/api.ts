@@ -43,14 +43,26 @@ export class TanikApiError extends Error {
   }
 }
 
+// Default request timeout: 25 s. Long enough for Render's free-tier cold
+// start (~15-30 s for the inference container) plus actual pipeline work,
+// short enough that an SSR page render doesn't hang forever when the
+// backend is asleep or unreachable. Per-call overridable via init.signal.
+const DEFAULT_TIMEOUT_MS = 25_000
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, init)
-  const text = await res.text()
-  const body = text ? JSON.parse(text) : null
-  if (!res.ok) {
-    throw new TanikApiError(body as ApiError, res.status)
+  const ctl = new AbortController()
+  const timer = setTimeout(() => ctl.abort(), DEFAULT_TIMEOUT_MS)
+  try {
+    const res = await fetch(`${API_BASE}${path}`, { ...init, signal: init?.signal ?? ctl.signal })
+    const text = await res.text()
+    const body = text ? JSON.parse(text) : null
+    if (!res.ok) {
+      throw new TanikApiError(body as ApiError, res.status)
+    }
+    return body as T
+  } finally {
+    clearTimeout(timer)
   }
-  return body as T
 }
 
 // ---- Iris ----------------------------------------------------------------
