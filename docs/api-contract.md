@@ -41,15 +41,19 @@ Subjects are server-managed. The client never invents an identifier:
 
 ### `GET /api/v1/health`
 
-Liveness check. Always returns 200 if the service is up; does not touch storage or the iris pipeline.
+Liveness check. Always returns 200 if the service is up; does not touch storage, the iris pipeline, or the JVM (the fingerprint engine version is read from the module constant — JVM startup is deferred to the first actual fingerprint request).
 
 ```json
 {
   "status": "ok",
   "iris_engine": "open-iris/1.11.1",
+  "fingerprint_engine": "sourceafis/3.18.1",
+  "calibration_status": "placeholder",
   "version": "0.1.0"
 }
 ```
+
+`calibration_status` is `"placeholder"` until Phase 3 #43 ships measured fusion weights, then `"calibrated"`. Same in-band signal as the unified verify response. A monitoring system that reads this endpoint can flag deployments that are still on placeholder calibration.
 
 ### `POST /api/v1/iris/enroll`
 

@@ -10,4 +10,6 @@ def test_health_returns_ok():
     body = r.json()
     assert body["status"] == "ok"
     assert body["iris_engine"].startswith("open-iris/")
+    assert body["fingerprint_engine"].startswith("sourceafis/")
+    assert body["calibration_status"] == "placeholder"
     assert body["version"] == "0.1.0"

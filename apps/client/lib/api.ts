@@ -18,6 +18,8 @@ const API_BASE = INTERNAL_BASE
 export type Health = {
   status: 'ok'
   iris_engine: string
+  fingerprint_engine: string
+  calibration_status: 'placeholder' | 'calibrated'
   version: string
 }
 
