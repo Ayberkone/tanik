@@ -5,6 +5,12 @@
 > An open-source, multi-modal biometric authentication kiosk. Iris + fingerprint, fused into a single identity decision, with honest metrics and a clear threat model.
 
 **Status:** Phases 1 + 2 implementation shipped (iris + fingerprint enrollment + verification end-to-end). Phase 3 in progress — unified `/api/v1/verify` shipped with placeholder calibration; measured FAR/FRR pending dataset acquisition. Liveness arrives in Phase 4. See `ROADMAP.md` for phase definitions of done; see `CHANGELOG.md` for history.
+
+**Live demo:**
+- Client (Next.js, Vercel): <https://tanik.vercel.app>
+- Inference API (FastAPI, Render): <https://tanik.onrender.com> · health probe: <https://tanik.onrender.com/api/v1/health>
+
+> Render's free tier sleeps the service after 15 minutes of inactivity; the first request after sleep takes ~30s to wake up. Subsequent requests are fast. SQLite storage on Render's free tier is ephemeral — enrolments reset on every redeploy.
 **License:** MIT · **Stack:** Next.js 16 · FastAPI · Python 3.10 · OpenJDK 17 (for the SourceAFIS bridge)
 
 ---
