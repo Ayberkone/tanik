@@ -4,7 +4,7 @@
 >
 > An open-source, multi-modal biometric authentication kiosk. Iris + fingerprint, fused into a single identity decision, with honest metrics and a clear threat model.
 
-**Status:** Phases 1 + 2 implementation shipped (iris + fingerprint enrollment + verification end-to-end). Fusion, liveness, and measured FAR/FRR are scheduled — see `ROADMAP.md`.
+**Status:** Phases 1 + 2 implementation shipped (iris + fingerprint enrollment + verification end-to-end). Phase 3 in progress — unified `/api/v1/verify` shipped with placeholder calibration; measured FAR/FRR pending dataset acquisition. Liveness arrives in Phase 4. See `ROADMAP.md` for phase definitions of done; see `CHANGELOG.md` for history.
 **License:** MIT · **Stack:** Next.js 16 · FastAPI · Python 3.10 · OpenJDK 17 (for the SourceAFIS bridge)
 
 ---
@@ -38,7 +38,7 @@ Each stage has a single responsibility and can reject the request before passing
 | **Iris engine** | [`worldcoin/open-iris`](https://github.com/worldcoin/open-iris) | ✅ Pre-warmed in the Docker image; matches via masked fractional Hamming distance |
 | **Fingerprint engine** | [SourceAFIS](https://sourceafis.machinezoo.com/) 3.18.1 (Java JAR vendored, called via JPype) | ✅ In-process JVM, native CBOR templates, similarity scoring against the documented FMR=0.01% threshold |
 | **Liveness (v1)** | Basic presentation-attack detector | ⏳ Phase 4 |
-| **Fusion** | Weighted-sum, calibrated weights | ⏳ Phase 3 |
+| **Fusion** | Weighted-sum normalisation + unified `/api/v1/verify` | ✅ endpoint shipped (Phase 3 #41); weights are placeholder until #43 publishes measured calibration — see `docs/fusion.md` |
 | **Storage** | SQLite (templates only, never raw images) | ✅ Modality-agnostic `subjects` table — `(subject_id, modality, template_bytes, metadata_json, ...)` — engines own their own template format |
 | **Orchestration** | Docker Compose | ✅ Internal bridge network, named volume for SQLite, healthchecks on both services |
 | **CI** | GitHub Actions | ✅ Backend pytest (incl. fingerprint suite against Temurin 17) + Playwright e2e on every push |
@@ -97,14 +97,16 @@ tanik/
 │   ├── client/              # Next.js 16 — operator surface
 │   └── inference/           # FastAPI — iris enrollment + verification
 ├── docs/
+│   ├── architecture.md      # Top-to-bottom system walkthrough (presentation-grade)
 │   ├── api-contract.md      # Source of truth for the HTTP API
 │   ├── sequence-flow.md     # State machine + Mermaid diagrams
 │   ├── development.md       # Local dev, tests, foot-guns
 │   ├── datasets.md          # Every dataset used, with source + license
+│   ├── nd-iris-0405-access.md  # Step-by-step license execution for the Phase 3 iris dataset
+│   ├── fusion.md            # Phase 3 fusion methodology + placeholder calibration caveat
 │   ├── outreach/            # Email drafts to dataset providers
 │   ├── threat-model.md      # arrives in Phase 4
-│   ├── performance.md       # arrives in Phase 3 (auto-generated)
-│   ├── fusion.md            # arrives in Phase 3
+│   ├── performance.md       # arrives in Phase 3 #43 (auto-generated)
 │   ├── pad.md               # arrives in Phase 4
 │   └── privacy.md           # arrives in Phase 4
 ├── notebooks/
@@ -115,6 +117,7 @@ tanik/
 ├── docker-compose.yml
 ├── ROADMAP.md
 ├── BACKLOG.md
+├── CHANGELOG.md
 └── README.md
 ```
 

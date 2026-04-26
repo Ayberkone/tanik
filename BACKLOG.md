@@ -40,3 +40,20 @@ Adam confirmed (2026-04-25) that the dataset is requestable via the formal licen
 ## Fingerprint dataset gap for Phase 3 — same-finger pairs
 
 Phase 2 uses NIST MINEX III validation imagery for fingerprint tests (see `docs/datasets.md`). MINEX validation has only one impression per finger, so Phase 2 tests can only assert the **negative** ("different fingers do not match") and the trivial positive ("identical bytes match identical bytes"). Honest genuine-vs-impostor scoring needs multiple impressions per finger — the FVC2002 / FVC2004 DB1_B "B" subsets are the standard candidates, with about 80 images each (10 fingers × 8 impressions). The original FVC website is no longer authoritative; sourcing must verify the licence at acquisition time. Required before any FAR/FRR fingerprint number is reported in Phase 3.
+
+## Threshold-slider UI (#42) — what to build, when
+
+Phase 3 task `#42` was originally framed as the standalone next step after `#41`. Re-reading its DoD ("threshold slider in the UI, when moved, visibly trades off false accepts vs false rejects in real time on the test set") surfaces that it is **also dataset-gated** — without `#43`'s test set, there are no FAR/FRR numbers to slide between. Two viable shapes when the dataset lands:
+
+1. **Test-set sweep page** — drag the threshold, watch FAR and FRR move on a chart fed by the held-out test set. This is the literal DoD wording.
+2. **Single-pair score visualiser** — drag the threshold against a fixed iris+fingerprint pair, see the per-modality and fused decisions flip. Useful for operator/debug surfaces; weaker than (1).
+
+(1) is the right shape, (2) is the trap to avoid building first. Decide once `#43` lands. Do not build either ahead of the dataset — anything built earlier is polish on a foundation whose calibration is going to move.
+
+## In-band placeholder→calibrated promotion in unified verify
+
+When `#43` ships measured weights, `tanik_inference/routes/verify.py` will need to flip `CALIBRATION_REFERENCE` and `CalibrationStatus.PLACEHOLDER` to their calibrated equivalents. The right shape: read the calibration status from a config field (e.g. `TANIK_FUSION_CALIBRATION_STATUS`), keep `placeholder` as the default, and flip via env when the calibration commit lands. Keeps the route honest about its own state without a code edit per calibration refresh.
+
+## Cross-modality subject linking — operator workflow
+
+Today, a human enrolling both iris and fingerprint produces two separate `subject_id`s by design (each enrol creates one subject row tagged with one modality). The unified `/api/v1/verify` endpoint therefore takes two `subject_id`s in the both-modalities case. A real kiosk would want an operator-facing "link these two subjects to the same person" workflow — but that is admin-surface work (Phase 4) and an identity model decision (do we introduce a `person_id` superordinate to `subject_id`?). Capture; revisit in Phase 4 alongside the admin dashboard.
