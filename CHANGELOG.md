@@ -44,11 +44,21 @@ The first tagged release will land at the end of Phase 5.
 
 - **`OWNER-ACTIONS.md`** (root-level) — consolidates the tasks Claude cannot do (institutional license signatures, account creation, real-face DoD walkthrough, dataset acquisition) into one checklist with "smallest next step" framing. Five pending items; empty Done section ready to grow.
 
-### Changed — Phase 3 iris-dataset plan revised (CASIA primary)
+### Changed — Phase 3 iris-dataset plan revised again (PolyU primary)
+
+User found the IEEE Biometrics Council resources page <https://ieee-biometrics.org/resources/biometric-databases/ocular-iris-periocular/> while CASIA's site was unreachable. The page surfaces the **PolyU Cross-Spectral Iris Database** hosted by Ajay Kumar at Hong Kong PolyU — web-form application, no institutional gate, **NIR + visible (paired)**, 12,540 images from 209 subjects. Strictly better fit for an unaffiliated solo author than ND-IRIS-0405 or CASIA, and the bi-spectral nature opens follow-up cross-spectral evaluation paths.
+
+New files:
+- `docs/polyu-iris-access.md` — primary access guide; comparison table of all five candidate iris datasets surfaced through this exploration; license terms (no commercial use; no redistribution; cite Ramaiah & Kumar 2017) documented and verified compatible with TANIK's MIT-licensed open-source posture.
+- `docs/outreach/polyu-iris-request.md` — exact form-field text to paste into the PolyU web form. Independent-researcher affiliation stated honestly; intended-use paragraph specifically lists FAR/FRR/EER plus the optional cross-spectral follow-up; redistribution and citation handling explicit.
+
+`OWNER-ACTIONS.md` item 1 rewritten as a four-tier plan: PolyU primary, ND-CVRL honest-ask parallel (already sent by user), CASIA when reachable, IIT Delhi / UBIRIS as further fallbacks. Previous CASIA-primary framing was correct given the information available at the time but is now superseded by the PolyU discovery.
+
+### Changed — Phase 3 iris-dataset plan revised (CASIA primary, superseded)
 
 User-feedback driven: the original `#11` framing assumed the ND-IRIS-0405 license could be navigated. Reading the license carefully showed a hard institutional-signature wall (no students, no postdocs, no non-delegated faculty, no Gmail submissions) — as a solo independent author this is a wall, not a friction point.
 
-New plan:
+New plan (later superseded by PolyU discovery — see entry above):
 
 - **Primary: CASIA-Iris-V4.** Application-based but individuals are eligible in practice. New `docs/casia-iris-access.md` (the access guide) and `docs/outreach/casia-iris-request.md` (a ready-to-adapt application email).
 - **Parallel honest-ask: ND-CVRL.** New `docs/outreach/nd-iris-independent-author.md` puts the question to `cvrl@nd.edu` plainly — does ND-CVRL have any path for unaffiliated open-source authors, or is the institutional wall hard? Ask once cleanly; the answer (likely "no") informs whether to chase institutional sponsorship or stay on CASIA.

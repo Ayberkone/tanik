@@ -10,18 +10,24 @@ When you complete an item, move it to the **Done** section at the bottom and not
 
 ### 1. `#11` Acquire a research-grade iris dataset for evaluation
 
-The original framing was "execute the ND-IRIS-0405 license agreement." Reading the license agreement carefully revealed a hard wall: ND-CVRL **will not accept** signatures from students, postdocs, or non-delegated faculty, and submissions must come from an institutional email address (no Gmail). As a solo independent author, **the institutional-licensee route is not available without external sponsorship**.
+The previous framing assumed ND-IRIS-0405 was the target. Two discoveries on 2026-04-26 reshaped this:
 
-The realistic plan is two parallel asks:
+1. ND-CVRL's license has a hard institutional-signature wall (no individuals, no Gmail) — not navigable solo.
+2. CASIA's website (`biometrics.idealtest.org`) is intermittently unreachable from multiple networks.
+3. **The IEEE Biometrics Council resources page <https://ieee-biometrics.org/resources/biometric-databases/ocular-iris-periocular/> lists a much better-fit option: the PolyU Cross-Spectral Iris Database hosted by Ajay Kumar at Hong Kong PolyU.** Web-form application, no institutional gate, NIR + visible (paired), 12,540 images from 209 subjects. Genuinely accessible to solo independent authors; Prof. Kumar has historically been supportive of open-source projects.
 
-**1a. CASIA-Iris-V4 (primary).** Apply via CASIA / CBSR; individuals are eligible in practice. Smallest next step: read `docs/casia-iris-access.md`, find the current submission contact on `biometrics.idealtest.org` (the URL in this guide may have moved), then send the draft in `docs/outreach/casia-iris-request.md` (adapted to the live contact). Estimated effort: 30 minutes drafting + days-to-weeks waiting.
+**The plan is now PolyU-primary, with three honest-ask backups already drafted.**
 
-**1b. ND-CVRL honest-ask (in parallel).** Send the draft in `docs/outreach/nd-iris-independent-author.md` to `cvrl@nd.edu` cc'ing `aczajka@nd.edu`. The draft asks plainly whether ND-CVRL has any path for unaffiliated authors. The likely answer is "no" — but the question is worth asking once cleanly rather than spending weeks trying to construct an institutional fiction. If they say no, that's fine; CASIA carries the project. If they suggest a path, take it. Estimated effort: 5 minutes (the draft is ready).
+**1a. PolyU Cross-Spectral (primary).** Read `docs/polyu-iris-access.md`. Open the application form at <http://www4.comp.polyu.edu.hk/~csajaykr/myhome/database_request/polyuiris/>. Paste the field text from `docs/outreach/polyu-iris-request.md`. Submit. Reported response time: a few days. **Estimated effort: 10 minutes.**
 
-**1c. UBIRIS.v2 (no-gate fallback).** If both CASIA and ND-CVRL refuse, register at <https://www.cs.ubi.pt/projects/ubipr/ubiris2.html> and download. Visible-light captures rather than NIR — weaker for evaluation, but available with no committee gate. Document the trade-off in `docs/datasets.md` if you go this route.
+**1b. ND-CVRL honest-ask (parallel, sent — awaiting reply).** Email at `docs/outreach/nd-iris-independent-author.md`. Asks whether ND-CVRL has any path for unaffiliated authors. Worst case "no" → costs nothing; best case unblocks the largest NIR iris dataset.
+
+**1c. CASIA when the site becomes reachable.** Draft is ready at `docs/outreach/casia-iris-request.md`. Try the URL `biometrics.idealtest.org` periodically; if/when reachable, send.
+
+**1d. IIT Delhi Iris (smaller, visible-only) and UBIRIS.v2 (no-gate, visible-only).** Documented as further fallbacks in `docs/polyu-iris-access.md`. Only pursue if PolyU refuses — extremely unlikely.
 
 - **Why it's load-bearing.** Phase 3 `#42` and `#43` are both blocked on this. Until a research-grade iris dataset is in hand, `docs/performance.md` cannot ship measured numbers and the unified `/api/v1/verify` endpoint stays at `calibration_status: "placeholder"`.
-- **Related files.** `docs/casia-iris-access.md` (primary path), `docs/nd-iris-0405-access.md` (the wall, documented), `docs/outreach/casia-iris-request.md` (CASIA email draft), `docs/outreach/nd-iris-independent-author.md` (ND-CVRL honest-ask draft), `docs/outreach/nd-iris-request.md` + `docs/outreach/nd-iris-thanks.md` (earlier ND-CVRL correspondence).
+- **Related files.** `docs/polyu-iris-access.md` (primary path), `docs/outreach/polyu-iris-request.md` (form-field text), `docs/casia-iris-access.md` (CASIA backup), `docs/nd-iris-0405-access.md` (institutional wall, documented), the four outreach email drafts.
 
 ### 2. `#11-fingerprint` Acquire an FVC-style fingerprint dataset
 
