@@ -201,11 +201,15 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 ## Current status
 
-**Phase:** 3 — first endpoint (`#41`) shipped, backend CI green. Remaining Phase 3 work (`#42`, `#43`) is dataset-gated. Phase 2 closed and CI-verified green; Phase 1 deploy + DoD walkthrough still deferred per author decision.
+**Phase:** 3 — first endpoint (`#41`) shipped, backend CI green, **deployed publicly**. Remaining Phase 3 work (`#42`, `#43`) is dataset-gated. Phase 2 closed and CI-verified green; **Phase 1 deploy now LIVE**, DoD walkthrough (`#33`) in flight via local-first dev.
 
-**Last commit (code):** `cc48ace` feat(inference): unified POST /api/v1/verify with placeholder fusion (#41)
-**Last commit (docs):** `4b780a3` docs: comparison.md + README/CHANGELOG sync
-**Branch:** `main`, in sync with `origin/main`. Backend CI green on `cc48ace`. Subsequent commits are docs-only and do not invoke backend CI.
+**Last commit:** `7034aac` fix(client): camera no longer resets on every keystroke + clearer timeouts
+**Branch:** `main`, in sync with `origin/main`. Backend CI green on `cc48ace` (latest commit touching backend code).
+
+**Live deployment:**
+- Client (Vercel): <https://tanik.vercel.app>
+- Inference (Render): <https://tanik.onrender.com> · health: <https://tanik.onrender.com/api/v1/health>
+- Free-tier trade-offs known and documented (Render 15-min sleep, ephemeral SQLite, Vercel framework-preset gotcha).
 
 **Documentation surface (current):** index at [`docs/README.md`](docs/README.md). Sixteen documents organised by purpose (start-here / Phase 3 / Phase 4 prep / Phase 5 prep / outreach).
 
@@ -223,14 +227,24 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 - ✅ Client UI — separate `/fingerprint/enroll` + `/fingerprint/verify` pages (upload-only — webcam capture not feasible for fingerprints), home page restructured to a 4-card grid. Existing iris flows untouched. `EnrollResult` / `VerifyResult` are now discriminated unions; pages narrow by `modality`. Five new Playwright tests; existing 10 still green; `npm run lint` + `npm run build` clean (`#9`).
 - ✅ Phase 2 DoD verification (`#10`) — backend workflow green on `ba85e81` (21 iris/storage/validator tests + the full fingerprint suite running against Temurin 17 + JPype1 1.7.0 + the vendored SourceAFIS JAR + MINEX fixtures); client workflow green on `d686fa2` (15 Playwright tests, 5 of them new). The first push (`d686fa2`) failed backend with no public-readable detail; the follow-up commit added pytest→`::error::` annotation surfacing for next time and dropped a JPype `convertStrings=False` flag that was the proximate cause.
 
-**Phase 1 status (carried forward, unchanged):**
-- ⏳ Deploy to a public URL (`#32`) — paused per author; Vercel (client) + Railway (backend) split.
-- ⏳ Phase 1 DoD verification (`#33`) — needs a real-browser walkthrough with the author's actual face.
+**Phase 1 status:**
+- ✅ Deploy to a public URL (`#32`) — Vercel (client) + Render (backend), live at the URLs above. Deployed 2026-04-26.
+- ⏳ Phase 1 DoD verification (`#33`) — pivot to **local-first dev** as of end of session. User started the iris flow and hit two real bugs (camera resets on keystroke; 25 s timeout on cold-start) — both fixed in `7034aac`. User has the local-dev terminals queued up; walkthrough resumes from there.
 
-**Open user-action items (SIDE):**
-- `#11` Execute ND-IRIS-0405 license agreement at https://cvrl.nd.edu/projects/data — Adam Czajka confirmed access path 2026-04-25; required for Phase 3 evaluation.
+**Open user-action items (SIDE) — all in flight, no blockers from Claude:**
+- `#11` Iris evaluation dataset acquisition.
+  - **PolyU Cross-Spectral application sent** (web form, primary path; expected reply within days). Replaces ND-IRIS-0405 as the primary plan because PolyU's web-form gate is solo-dev-friendly while ND-IRIS-0405's institutional-signature wall is hard for an unaffiliated author.
+  - **ND-CVRL honest-ask email sent** to `cvrl@nd.edu` (parallel; expected answer "no path for unaffiliated authors" → costs nothing to ask).
+  - CASIA / IIT Delhi / UBIRIS as fallbacks if PolyU refuses (extremely unlikely).
 
-**In flight:** Nothing. Working tree clean, all commits pushed, backend CI green.
+**In flight:** Phase 1 `#33` walkthrough — user pivoted to local-first dev at the very end of the session. Two terminals queued (uvicorn + npm run dev with the appropriate env vars). The two bug fixes that were blocking the flow shipped in commits `0530499` and `7034aac`.
+
+**Session ending 2026-04-27 (long session, ~30 commits):**
+- Phase 3 `#41` shipped (`cc48ace`) and CI-verified green.
+- Documentation explosion: 16 docs in `docs/` now organised via `docs/README.md` index, plus `OWNER-ACTIONS.md` at repo root + backfilled `CHANGELOG.md`. Includes the full Proline-presentation kit (architecture, blog draft, Marp pitch deck, glossary, comparison).
+- **Iris dataset plan revised twice**: original ND-IRIS-0405 plan hit the institutional-signature wall (solo dev cannot sign as institutional licensee); pivoted to CASIA, then to **PolyU Cross-Spectral** when the user found the IEEE Biometrics Council resources page. PolyU is strictly better fit (web-form application, NIR + visible paired, 12,540 images / 209 subjects). Application sent.
+- **Deployed publicly**: tanik.vercel.app + tanik.onrender.com. Caught and fixed a Vercel 404 (Next.js standalone output incompatible with serverless routing — gated on `BUILD_STANDALONE` env var, Docker keeps it on, Vercel leaves it off) and a Render Dockerfile-path misconfiguration. Health endpoint extended with `fingerprint_engine` + `calibration_status` (`beb08be`); home page surfaces the placeholder calibration signal in-band (`6c6e2db`).
+- **Two real DoD-walkthrough bugs found and fixed**: camera resetting on every keystroke (callback-identity churn through `useEffect` deps — fixed via ref pattern in `WebcamCapture` and `IrisForm`); fetch timeouts surfacing as cryptic AbortError (per-operation timeouts: 15 s health, 60 s pipeline, with cold-start-aware error messages). Commit `7034aac`.
 
 **Catch-up + Phase 4/5 prep documentation shipped this session** (commits `350ad52` → `9f00ea0`, plus `cc48ace` for the actual #41 code):
 
@@ -259,15 +273,30 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 - `docs/blog-post-draft.md` — full-length tech-blog draft reshaping `architecture.md` for a non-academic biometric-engineer audience. Three suggested titles; "what I'd love feedback on" closing with three concrete questions for industry readers. Publishable when the author wants.
 - `BACKLOG.md` — three new entries surfaced this session (`#42`'s dataset gate; in-band placeholder→calibrated promotion; cross-modality subject linking for Phase 4).
 
-**Next concrete action when the author returns.** Read [`OWNER-ACTIONS.md`](OWNER-ACTIONS.md) at repo root — it consolidates everything only the human owner can do. The five pending items in priority order:
+**Next concrete action.** Resume the local-first DoD walkthrough (`#33`). Two terminals:
 
-1. **`#11` Execute ND-IRIS-0405 license** — institutional signature + institutional email submission to `cvrl@nd.edu`. Step-by-step in `docs/nd-iris-0405-access.md`. Unblocks `#42` + `#43`.
-2. **`#11-fingerprint` Acquire FVC-style fingerprint dataset** — multiple impressions per finger, the gap MINEX III leaves open.
-3. **`#32` Deploy** — Vercel (client) + Railway (backend) recommended split.
-4. **`#33` Phase 1 DoD walkthrough** — your own face in a real browser; five minutes once `#32` is up.
-5. **(Optional) Read what's been built** — `docs/architecture.md` is the catch-up; `docs/blog-post-draft.md` is the outward-facing version; `docs/proline-pitch-deck.md` is Marp-renderable for a real talk.
+```
+# Terminal 1 — backend
+cd /Users/ayberkbaytok/tanik && \
+  TANIK_CORS_ALLOW_ORIGINS=http://localhost:3000 \
+  /Users/ayberkbaytok/tanik/.venv/bin/uvicorn \
+  --app-dir apps/inference \
+  tanik_inference.main:app --reload --port 8000
 
-Phase 3 tasks `#42` and `#43` remain hard-blocked on the dataset acquisitions in items 1 and 2. The BACKLOG entry on `#42` explicitly warns against building it ahead of data — it would be polish on a foundation whose calibration is going to move. Phase 4 implementation (PAD, admin API, admin dashboard) and Phase 5 (blog post + landing page) are unlocked by the docs already shipped, but should not start until Phase 3 is closed (the phase-gate rule still applies; the docs ahead of implementation are the documented exception, not a precedent for code ahead of phase).
+# Terminal 2 — client
+cd /Users/ayberkbaytok/tanik/apps/client && \
+  NEXT_PUBLIC_API_BASE_URL=http://localhost:8000 \
+  npm run dev
+```
+
+Visit `http://localhost:3000`, click Enroll iris, type display name (camera should now stay live — bug fix `7034aac`), capture, submit. Then verify against the returned `subject_id`. Once the iris flow works locally, `#33` closes and Phase 1 is fully done.
+
+Beyond `#33`, everything else is in waiting:
+- `#11` PolyU + ND-CVRL emails sent — waiting on replies.
+- `#42` / `#43` dataset-gated — wait for PolyU.
+- Phase 4 / 5 — phase-gate; do not start until Phase 3 closes.
+
+See `OWNER-ACTIONS.md` for the full owner-side checklist (now updated to reflect PolyU as primary).
 
 **Honest gap noted in DoD walkthrough:** the literal "same finger across two impressions matches" assertion is not verified. The MINEX validation set ships only one impression per finger, so the test suite covers (a) self-match (identical bytes) and (b) different-finger pairs across subjects. Genuine vs impostor pairing needs an FVC-style dataset, recorded in `BACKLOG.md` as a Phase 3 prerequisite.
 
