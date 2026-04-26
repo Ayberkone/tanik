@@ -203,8 +203,9 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 **Phase:** 3 — first endpoint (`#41`) shipped, backend CI green. Remaining Phase 3 work (`#42`, `#43`) is dataset-gated. Phase 2 closed and CI-verified green; Phase 1 deploy + DoD walkthrough still deferred per author decision.
 
-**Last commit:** `cc48ace` feat(inference): unified POST /api/v1/verify with placeholder fusion (#41)
-**Branch:** `main`, in sync with `origin/main`. Backend CI green on `cc48ace`.
+**Last commit (code):** `cc48ace` feat(inference): unified POST /api/v1/verify with placeholder fusion (#41)
+**Last commit (docs):** `9f00ea0` docs: Phase 4 admin surface skeletons (admin-api + admin-dashboard)
+**Branch:** `main`, in sync with `origin/main`. Backend CI green on `cc48ace`. Subsequent commits are docs-only and do not invoke backend CI.
 
 **Phase 3 progress:**
 - ✅ `#41` Score normalisation + unified `POST /api/v1/verify`. Piecewise-linear normalisation anchored at the per-modality threshold (engine-native threshold → normalised 0.5), weighted-sum fusion with weights renormalised over the modalities present in the request. New endpoint accepts iris-only, fingerprint-only, or both; returns fused decision plus per-modality breakdown plus an in-band `calibration_status: "placeholder"` honesty signal. New `docs/fusion.md` documents the methodology, the reference (Ross & Jain 2003), and the explicit caveat that weights are placeholder until #43 ships measured numbers. `docs/api-contract.md` updated with the new endpoint definition. New tests: `test_fusion.py` (18 unit tests on the pure normalisation/fusion math) and `test_unified_verify.py` (9 integration tests; skip-guarded on JPype/JVM availability like the existing fingerprint suite). Backend CI green on `cc48ace` — 39 + 22 tests all pass on CI's JVM-equipped runner.
@@ -229,23 +230,40 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 **In flight:** Nothing. Working tree clean, all commits pushed, backend CI green.
 
-**Catch-up + Phase 4 prep documentation shipped this session** (commits `350ad52`, `99a95de`, and the docs commit that follows):
-- `docs/architecture.md` — top-to-bottom system walkthrough; doubles as Proline-presentation material.
+**Catch-up + Phase 4/5 prep documentation shipped this session** (commits `350ad52` → `9f00ea0`, plus `cc48ace` for the actual #41 code):
+
+*Catch-up + #41 (commits `cc48ace`, `9f2c6b4`, `350ad52`)*
+- `docs/architecture.md` — top-to-bottom system walkthrough; doubles as Proline-presentation material. Sections 1+2+3+8 are the 5-minute version.
+- `docs/fusion.md` — Phase 3 fusion methodology + the placeholder caveat.
 - `docs/nd-iris-0405-access.md` — actionable step-by-step license-execution checklist for `#11`.
+- `CHANGELOG.md` — backfilled from git history in Keep-a-Changelog format.
+
+*Phase 4 prep (commits `99a95de`, `9f00ea0`)*
 - `docs/threat-model.md` — working draft; scope, attacker model, asset inventory, attack-by-attack table.
 - `docs/privacy.md` — working draft; KVKK + GDPR + EU AI Act posture; "templates ARE personal data" precision.
 - `docs/pad.md` — Phase 4 PAD skeleton; ISO/IEC 30107 framework + candidate datasets and approaches.
+- `docs/admin-api.md` — Phase 4 operator API skeleton; six endpoints under `/api/v1/admin/*`; OIDC + audit log pattern.
+- `docs/admin-dashboard.md` — Phase 4 operator UI skeleton; five pages inside the existing Next.js app at `/admin/*`.
+
+*Phase 3 prep (commits `e2ebd55`, `4ea4e34`)*
 - `docs/performance.md` — skeleton with every metric `TBD`; will be machine-written by `#43` once data lands.
-- `CHANGELOG.md` — backfilled from git history in Keep-a-Changelog format.
+- `docs/datasets.md` — ND-IRIS-0405 promoted to "license-execution in progress"; FVC composition documented; new "PAD candidates" section (NDIris3D / CASIA-Iris-Fake / LivDet).
+- `docs/development.md` — new "Phase 3 fusion" subsection documenting all six `TANIK_FUSION_*` / `TANIK_IRIS_HD_*` / `TANIK_FINGERPRINT_SCORE_CEIL` env vars.
+
+*Doc consistency (commit `ce902e7`)*
+- `docs/sequence-flow.md` — was iris-only and stale; added fingerprint enroll/verify diagrams + the unified verify diagram (parallel iris/fingerprint pipelines → normalise → fuse → in-band placeholder calibration signal).
+
+*Phase 5 prep (commit `e74ad63`)*
+- `docs/blog-post-draft.md` — full-length tech-blog draft reshaping `architecture.md` for a non-academic biometric-engineer audience. Three suggested titles; "what I'd love feedback on" closing with three concrete questions for industry readers. Publishable when the author wants.
 - `BACKLOG.md` — three new entries surfaced this session (`#42`'s dataset gate; in-band placeholder→calibrated promotion; cross-modality subject linking for Phase 4).
 
 **Next concrete action when the author returns.** Decision required. Three viable paths, in honest order of value:
 
 1. **Execute `#11` (ND-IRIS-0405 license).** Only the author can do this — it requires an institutional email + signature. `docs/nd-iris-0405-access.md` is the step-by-step guide. Unblocks `#42` and `#43` and lets Phase 3 actually close.
 2. **`#32` deploy.** The one open task that doesn't need data; would make the project externally reachable. Recommended split: Vercel (client) + Railway (backend).
-3. **Hold and read.** This session's recursive push produced ~6 new docs. Reading `docs/architecture.md` end-to-end is the fastest way to catch up on what's been built.
+3. **Hold and read.** This session's recursive push produced **eleven new or updated docs**. Reading `docs/architecture.md` end-to-end is the fastest way to catch up on what's been built; `docs/blog-post-draft.md` is the publishable outward-facing version of the same material.
 
-Phase 3 tasks `#42` and `#43` remain hard-blocked on `#11` + an FVC-style fingerprint dataset. The BACKLOG entry on `#42` explicitly warns against building it ahead of data — it would be polish on a foundation whose calibration is going to move.
+Phase 3 tasks `#42` and `#43` remain hard-blocked on `#11` + an FVC-style fingerprint dataset. The BACKLOG entry on `#42` explicitly warns against building it ahead of data — it would be polish on a foundation whose calibration is going to move. Phase 4 implementation (PAD, admin API, admin dashboard) and Phase 5 (blog post + landing page) are unlocked by the docs already shipped, but should not start until Phase 3 is closed (the phase-gate rule still applies; the docs ahead of implementation are the documented exception, not a precedent for code ahead of phase).
 
 **Honest gap noted in DoD walkthrough:** the literal "same finger across two impressions matches" assertion is not verified. The MINEX validation set ships only one impression per finger, so the test suite covers (a) self-match (identical bytes) and (b) different-finger pairs across subjects. Genuine vs impostor pairing needs an FVC-style dataset, recorded in `BACKLOG.md` as a Phase 3 prerequisite.
 
