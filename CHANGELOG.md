@@ -20,9 +20,16 @@ The first tagged release will land at the end of Phase 5.
 - **`CHANGELOG.md`** (this file) — backfilled from git history.
 - 18 new unit tests in `tests/test_fusion.py` (anchor points, monotonicity, clamping, fusion identities) + 9 integration tests in `tests/test_unified_verify.py` (iris-only, fingerprint-only, both, impostor pair, half-supplied request, cross-modality `subject_id` 404, calibration-status surfacing). Backend: 39 + 22 tests pass on CI.
 
+### Added — Phase 4 prep documentation (Phase 3 in-flight)
+
+- **`docs/threat-model.md`** (working draft) — scope, attacker model, asset inventory, attack surface, and a concrete attack-by-attack table with current mitigations and gaps. Honest about what TANIK defends and what it doesn't (presentation attack, replay, template theft, template inversion, DoS, side-channels, image-decoder vulnerabilities). Maps gaps to specific Phase 4 work and to ISO/IEC 19795 / 24745 / 30107.
+- **`docs/privacy.md`** (working draft) — KVKK + GDPR + EU AI Act posture. Per-data-category inventory of what's stored, where, and for how long. Calls out that templates *are* personal data ("zero-knowledge" is the wrong phrase); enumerates the gaps (consent UI, retention period, subject access portal, encryption at rest) and where they get closed.
+- **`docs/pad.md`** (skeleton) — Phase 4 presentation-attack-detection plan. ISO/IEC 30107 framework (APCER/BPCER), candidate datasets (NDIris3D, CASIA-Iris-Fake, LivDet-Iris/Fingerprint), candidate approaches (heuristics → small CNN → vision foundation model). Honest about what software-only PAD cannot defend against (NIR replay, patterned contact lenses, high-quality silicone spoofs). API surface for `PAD_FAILURE` is now spec'd ahead of implementation.
+
 ### Notes
 
 - `#42` (threshold-slider UI) and `#43` (FAR/FRR/ROC harness) remain blocked on dataset acquisition (`#11`). Until then, `calibration_status` in unified-verify responses stays `"placeholder"`.
+- Phase 4 prep docs are written ahead of Phase 4 implementation deliberately, to give Proline-presentation material immediately and to lock the framework in. They are explicitly marked as drafts/skeletons; the implementation pass in Phase 4 will revise them against the chosen PAD model and admin surface.
 
 ---
 

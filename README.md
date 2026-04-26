@@ -105,10 +105,10 @@ tanik/
 │   ├── nd-iris-0405-access.md  # Step-by-step license execution for the Phase 3 iris dataset
 │   ├── fusion.md            # Phase 3 fusion methodology + placeholder calibration caveat
 │   ├── outreach/            # Email drafts to dataset providers
-│   ├── threat-model.md      # arrives in Phase 4
-│   ├── performance.md       # arrives in Phase 3 #43 (auto-generated)
-│   ├── pad.md               # arrives in Phase 4
-│   └── privacy.md           # arrives in Phase 4
+│   ├── threat-model.md      # Working draft (Phase 4 prep)
+│   ├── privacy.md           # Working draft (Phase 4 prep) — KVKK + GDPR posture
+│   ├── pad.md               # Skeleton (Phase 4) — presentation-attack-detection plan
+│   └── performance.md       # arrives in Phase 3 #43 (auto-generated)
 ├── notebooks/
 │   ├── 00_iris_spike.ipynb  # Phase 0 walkthrough of the open-iris pipeline
 │   └── README.md
