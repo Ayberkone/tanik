@@ -111,6 +111,9 @@ tanik/
 │   ├── admin-api.md         # Skeleton (Phase 4) — operator API surface
 │   ├── admin-dashboard.md   # Skeleton (Phase 4) — operator UI surface
 │   ├── blog-post-draft.md   # Phase 5 prep — tech-blog draft (publishable when ready)
+│   ├── proline-pitch-deck.md  # Marp-compatible 20-slide deck for talks
+│   ├── glossary.md          # Biometrics vocabulary reference card
+│   ├── comparison.md        # TANIK vs commercial vendors + other open-source
 │   └── performance.md       # Skeleton; arrives in Phase 3 #43 (auto-generated)
 ├── notebooks/
 │   ├── 00_iris_spike.ipynb  # Phase 0 walkthrough of the open-iris pipeline

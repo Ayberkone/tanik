@@ -36,6 +36,13 @@ The first tagged release will land at the end of Phase 5.
 ### Added — Phase 5 prep
 
 - **`docs/blog-post-draft.md`** — full-length tech-blog draft reshaping `docs/architecture.md` for a non-academic biometric-engineer audience. Conversational tone, code snippets, "the interesting twist" framing on the calibration_status placeholder signal. Three suggested titles; "what I'd love feedback on" section ending with three concrete questions for biometric-industry readers. Publishable when the author is ready (with or without measured numbers).
+- **`docs/proline-pitch-deck.md`** — Marp-compatible 20-slide deck for a 15-20 minute technical talk to biometric-industry engineers. Renders to PDF/HTML/PPTX via `npx @marp-team/marp-cli`. Speaker notes embedded in HTML comments. Closes the user's "I want presentation material for Proline" request alongside the long-form `architecture.md` and the article-form `blog-post-draft.md`.
+- **`docs/glossary.md`** — biometrics vocabulary reference (modalities, iris-specific terms, fingerprint-specific terms, performance metrics, architecture concepts, standards bodies, privacy regulation, TANIK-specific honesty discipline). Doubles as Proline-conversation anchor.
+- **`docs/comparison.md`** — honest positioning of TANIK against (a) commercial vendors (Suprema, IDEMIA, NEC), (b) other open-source iris (CVRL OpenSourceIrisRecognition / TripletIris + ArcIris), (c) other open-source fingerprint (NIST NBIS, OpenBR, MCC research code), (d) face-recognition-only systems (and why TANIK doesn't compete there). Sets up the post-Phase-3 comparative study against TripletIris + ArcIris as the project's most valuable single publishable artefact.
+
+### Added — Owner-side checklist
+
+- **`OWNER-ACTIONS.md`** (root-level) — consolidates the tasks Claude cannot do (institutional license signatures, account creation, real-face DoD walkthrough, dataset acquisition) into one checklist with "smallest next step" framing. Five pending items; empty Done section ready to grow.
 
 ### Notes
 
