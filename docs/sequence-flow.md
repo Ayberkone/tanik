@@ -1,8 +1,14 @@
-# Sequence flow — TANIK v1 (iris-only)
+# Sequence flow — TANIK
 
-This document is the visual companion to `docs/api-contract.md`. It shows what actually happens, in order, when a user enrolls or verifies through the kiosk. Iris-only for v1; fingerprint and fusion arrive in Phases 2 and 3.
+Visual companion to `docs/api-contract.md`. Shows what actually happens, in order, when a user enrolls or verifies through the kiosk.
 
-The capture state machine is the same for both flows — only the API call and the result panel differ.
+Coverage as of Phase 3 #41:
+- **Iris** enroll + verify (Phase 1)
+- **Fingerprint** enroll + verify (Phase 2)
+- **Unified, fused** verify across both modalities (Phase 3 #41)
+- Failure paths for all of the above
+
+The capture state machine is the same for every modality and every flow — only the API call and the result panel differ.
 
 ---
 
@@ -143,16 +149,155 @@ sequenceDiagram
 
 ### Note on the threshold
 
-`matched` is exactly `hamming_distance < threshold`. The threshold is **server-configured** (env var `TANIK_IRIS_MATCH_THRESHOLD`, default `0.37`) and returned in every response. The client must not invent its own threshold — it displays what the server returned. The Phase 3 threshold-slider UI will let an operator move the threshold and re-decide live against the test set; that is a Phase 3 affordance, not a v1 client capability.
+`matched` is exactly `hamming_distance < threshold`. The threshold is **server-configured** (env var `TANIK_IRIS_MATCH_THRESHOLD`, default `0.37`) and returned in every response. The client must not invent its own threshold — it displays what the server returned. The Phase 3 threshold-slider UI (task `#42`) will let an operator move the threshold and re-decide live against the test set; that lands once the test-set dataset (`#11`) is in.
 
 ---
 
-## What's NOT in v1
+## Fingerprint enroll flow (Phase 2)
+
+Fingerprint enrolment is **upload-only** — webcam capture is not feasible for fingerprints (regular cameras lack the resolution and consistency a fingerprint matcher needs). The state machine compresses to a file-pick instead of a `getUserMedia` stream.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant C as Client (Next.js, browser)
+    participant S as Capture store (Zustand)
+    participant A as API client (lib/api.ts)
+    participant B as Inference (FastAPI)
+    participant F as fingerprint_engine (SourceAFIS via JPype, threadpool)
+    participant J as JVM (one per process)
+    participant D as SQLite
+
+    U->>C: open /fingerprint/enroll
+    C->>S: startCapture("enroll") — IDLE → CAPTURING
+    U->>C: pick a fingerprint image file
+    C->>S: imageReady(blob) — held in CAPTURING
+    U->>C: fill display_name, finger_position; click Enroll
+    C->>S: beginUpload() — CAPTURING → UPLOADING
+    C->>A: enrollFingerprint({image, display_name, finger_position})
+    A->>B: POST /api/v1/fingerprint/enroll (multipart)
+    C->>S: serverProcessing() — UPLOADING → PROCESSING
+    B->>B: validate_image_bytes (magic-byte check)
+    B->>F: run_in_threadpool(encode)
+    F->>J: ensure_jvm() — first call only<br/>startJVM(classpath=[sourceafis-3.18.1.jar])
+    J-->>F: JVM ready
+    F->>J: FingerprintImage(bytes) → FingerprintTemplate
+    J-->>F: native CBOR template_bytes
+    F-->>B: template_bytes
+    B->>D: INSERT subject (modality="fingerprint", template_bytes, metadata={"finger_position": ...})
+    B-->>A: 201 FingerprintEnrollResponse {subject_id, template_version: "sourceafis/3.18.1", ...}
+    A-->>C: FingerprintEnrollResult
+    C->>S: enrollSucceeded(result) — PROCESSING → SUCCESS
+    C-->>U: success panel + subject_id
+```
+
+The JVM is started lazily on first call and reused for the lifetime of the process — `_ensure_jvm()` is a no-op after that. JPype enforces single-JVM-per-process, which lines up with FastAPI's single-worker deployment model.
+
+## Fingerprint verify flow (Phase 2)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant C as Client
+    participant A as API client
+    participant B as Inference
+    participant F as fingerprint_engine
+    participant D as SQLite
+
+    U->>C: open /fingerprint/verify
+    U->>C: pick image, paste subject_id, click Verify
+    C->>A: verifyFingerprint({image, subject_id})
+    A->>B: POST /api/v1/fingerprint/verify (multipart)
+    B->>B: validate_image_bytes
+    B->>D: SELECT modality, template_bytes FROM subjects WHERE subject_id = ?
+    alt subject not found, or modality != "fingerprint"
+        D-->>B: null
+        B-->>A: 404 {error_code: SUBJECT_NOT_FOUND}
+    else found
+        D-->>B: template_bytes
+        B->>F: run_in_threadpool(encode probe)
+        F-->>B: probe_bytes
+        B->>F: run_in_threadpool(match probe vs gallery)
+        F-->>B: similarity_score: float
+        B-->>A: 200 FingerprintVerifyResponse {matched, similarity_score, threshold, ...}
+    end
+    A-->>C: FingerprintVerifyResult
+    C-->>U: result panel — matched / not matched
+```
+
+`matched` is exactly `similarity_score >= threshold`. The threshold is **server-configured** (`TANIK_FINGERPRINT_MATCH_THRESHOLD`, default `40.0` — SourceAFIS's documented FMR=0.01% threshold) and returned in every response.
+
+A wrong-modality `subject_id` (an iris subject_id passed to the fingerprint endpoint) returns `404 SUBJECT_NOT_FOUND` rather than leaking that the subject exists in another modality — cross-modality lookups are deliberately invisible to a probing client.
+
+## Unified, fused verify flow (Phase 3 #41)
+
+The unified endpoint accepts iris and/or fingerprint in a single multipart upload. Each engine-native score is normalised to `[0, 1]`; weights are renormalised over the modalities the request actually supplied; the fused decision is a single threshold comparison. See `docs/fusion.md` for the math.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant C as Client (kiosk)
+    participant B as Inference
+    participant I as iris_engine
+    participant F as fingerprint_engine
+    participant N as fusion (pure functions)
+    participant D as SQLite
+
+    U->>C: capture iris + select fingerprint file
+    C->>B: POST /api/v1/verify (multipart with both modalities)
+    par iris path
+        B->>B: validate_image_bytes(iris)
+        B->>D: SELECT iris subject by id (404 if cross-modality)
+        D-->>B: iris template_bytes
+        B->>I: run_in_threadpool(encode iris probe)
+        I-->>B: iris probe_bytes
+        B->>I: run_in_threadpool(match iris probe vs gallery)
+        I-->>B: hamming_distance: float
+        B->>N: normalise_iris(hd, floor, threshold, ceil)
+        N-->>B: iris normalised score in [0,1]
+    and fingerprint path
+        B->>B: validate_image_bytes(fp)
+        B->>D: SELECT fingerprint subject by id (404 if cross-modality)
+        D-->>B: fingerprint template_bytes
+        B->>F: run_in_threadpool(encode fp probe)
+        F-->>B: fp probe_bytes
+        B->>F: run_in_threadpool(match fp probe vs gallery)
+        F-->>B: similarity_score: float
+        B->>N: normalise_fingerprint(score, threshold, ceil)
+        N-->>B: fp normalised score in [0,1]
+    end
+    B->>N: fuse(normalised_scores, weights) — weights renormalised over present modalities
+    N-->>B: fused_score in [0,1]
+    B-->>C: 200 UnifiedVerifyResponse {matched, fused_score, threshold,<br/>modalities: [...], calibration_status: "placeholder"}
+    C-->>U: result panel — fused decision + per-modality breakdown
+```
+
+### What the response signals
+
+- `matched` — `fused_score >= threshold` (server-configured, `TANIK_FUSION_DECISION_THRESHOLD`, default `0.5`).
+- `modalities[]` — one entry per modality supplied. Each carries the engine-native score, the normalised score, and the renormalised weight this modality contributed to `fused_score`.
+- `calibration_status: "placeholder"` — in-band honesty signal until Phase 3 #43 ships measured weights. A downstream system that needs measured FAR/FRR must refuse a placeholder response.
+
+### Single-modality unified call
+
+If only iris (or only fingerprint) is supplied, the absent modality's path is skipped and weights are renormalised over only the present modality — so its weight becomes `1.0` and `fused_score` cleanly equals its normalised score. There is no "halving by the absent modality" artefact.
+
+### Half-supplied requests are rejected at the boundary
+
+A request that supplies `iris_image` without `iris_subject_id` (or vice versa, for either modality) is almost always a client bug, so it returns 400 `VALIDATION_ERROR` before any engine work runs. Same for an entirely empty request body.
+
+---
+
+## What's NOT in current scope
 
 - **No 1:N identification.** No "find which subject this iris matches" endpoint exists. `verify` is always against a known `subject_id`.
-- **No liveness gate.** A printed photo of an enrolled iris will currently match. Liveness arrives in Phase 4 with `error_code: PAD_FAILURE`.
-- **No fingerprint, no fusion.** The unified `/api/v1/verify` endpoint and fused score arrive in Phase 3.
+- **No liveness gate.** A printed photo of an enrolled iris will currently match. Phase 4 adds the PAD gate, returning 503 `PAD_FAILURE` before the biometric pipeline runs. See `docs/pad.md`.
+- **Calibration is placeholder, not tuned.** Phase 3 #41 shipped the unified endpoint; the weights and normalisation knobs are explicit placeholders until Phase 3 #43 publishes measured numbers. The `calibration_status` field surfaces this in-band.
 - **No template aggregation.** Each enroll creates a new subject. Re-enrolling the same person under the same `display_name` produces a separate `subject_id`.
-- **No authentication.** Single-deployment, no users.
+- **No cross-modality subject linking.** A human enrolling both iris and fingerprint produces two distinct `subject_id`s; the unified endpoint takes both. Linking them under a `person_id` is a Phase 4 admin-surface decision (BACKLOG entry).
+- **No authentication.** Single-deployment, no users. Phase 4 adds the operator authn for the admin surface.
 
 These are deliberate scope choices, not omissions. See `ROADMAP.md` for the per-phase definitions of done.
