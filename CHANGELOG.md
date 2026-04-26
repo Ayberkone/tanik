@@ -44,6 +44,13 @@ The first tagged release will land at the end of Phase 5.
 
 - **`OWNER-ACTIONS.md`** (root-level) — consolidates the tasks Claude cannot do (institutional license signatures, account creation, real-face DoD walkthrough, dataset acquisition) into one checklist with "smallest next step" framing. Five pending items; empty Done section ready to grow.
 
+### Changed — audit-driven consistency pass
+
+- **Health endpoint extended.** `GET /api/v1/health` now returns `fingerprint_engine` (e.g. `"sourceafis/3.18.1"`) and `calibration_status` (`"placeholder"` today) alongside the existing `iris_engine` + `version`. JVM startup is *not* triggered by `/health` — the version string comes from a module constant. Contract + client `Health` type updated to match. A monitoring system polling `/health` can now flag deployments still on placeholder calibration without parsing the unified-verify response.
+- **Home page surfaces calibration-placeholder.** The status pill now shows both engine versions and renders an amber "fusion calibration: placeholder" line when the backend reports `placeholder`. The honest in-band signal is now visible at the kiosk's top-level surface, not buried in the API response.
+- **`docs/architecture.md` file-map sync.** Several Phase 4 prep docs were marked as "arrives in Phase 4" but had already shipped this session. Tree updated and reordered to match `docs/README.md`'s grouping.
+- **`README.md` threat-model wording.** Said "the full threat model document arrives in Phase 4" — corrected to reflect that the working draft now exists and will be revised through Phase 4.
+
 ### Notes
 
 - `#42` (threshold-slider UI) and `#43` (FAR/FRR/ROC harness) remain blocked on dataset acquisition (`#11`). Until then, `calibration_status` in unified-verify responses stays `"placeholder"`.

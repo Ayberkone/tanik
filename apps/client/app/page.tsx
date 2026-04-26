@@ -5,13 +5,25 @@ import { cn } from '@/lib/utils'
 import { api, TanikApiError } from '@/lib/api'
 
 type HealthStatus =
-  | { kind: 'ok'; iris_engine: string; version: string }
+  | {
+      kind: 'ok'
+      iris_engine: string
+      fingerprint_engine: string
+      calibration_status: 'placeholder' | 'calibrated'
+      version: string
+    }
   | { kind: 'down'; reason: string }
 
 async function getHealth(): Promise<HealthStatus> {
   try {
     const h = await api.health()
-    return { kind: 'ok', iris_engine: h.iris_engine, version: h.version }
+    return {
+      kind: 'ok',
+      iris_engine: h.iris_engine,
+      fingerprint_engine: h.fingerprint_engine,
+      calibration_status: h.calibration_status,
+      version: h.version,
+    }
   } catch (err) {
     const reason =
       err instanceof TanikApiError
@@ -72,9 +84,19 @@ export default async function Home() {
           <div className="space-y-0.5">
             <p className="text-sm font-medium">Inference service</p>
             {health.kind === 'ok' ? (
-              <p className="text-xs text-muted-foreground">
-                {health.iris_engine} · backend v{health.version}
-              </p>
+              <>
+                <p className="text-xs text-muted-foreground">
+                  {health.iris_engine} · {health.fingerprint_engine} · backend v{health.version}
+                </p>
+                {health.calibration_status === 'placeholder' && (
+                  <p
+                    className="text-xs text-amber-600 dark:text-amber-400"
+                    title="Fusion weights and normalisation knobs are honest defaults, not tuned on a calibration set. See docs/fusion.md."
+                  >
+                    fusion calibration: placeholder (measured FAR/FRR not yet available)
+                  </p>
+                )}
+              </>
             ) : (
               <p className="text-xs text-destructive">unreachable — {health.reason}</p>
             )}
