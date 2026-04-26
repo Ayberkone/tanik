@@ -24,6 +24,12 @@ COPY . .
 # Disable Next telemetry — operator privacy for the kiosk deployment.
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Opt into the standalone Next.js output (next.config.ts gates on this env
+# var). Vercel deploys leave this unset so they get a normal serverless
+# build; Docker deploys turn it on so the runtime stage can ship the
+# minimal .next/standalone/ bundle.
+ENV BUILD_STANDALONE=true
+
 # NEXT_PUBLIC_API_BASE_URL must be set at build time because Next bakes it
 # into the client bundle. Pass via --build-arg or the compose service env.
 ARG NEXT_PUBLIC_API_BASE_URL=http://inference:8000
