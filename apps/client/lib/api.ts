@@ -43,25 +43,45 @@ export class TanikApiError extends Error {
   }
 }
 
-// Default request timeout: 25 s. Long enough for Render's free-tier cold
-// start (~15-30 s for the inference container) plus actual pipeline work,
-// short enough that an SSR page render doesn't hang forever when the
-// backend is asleep or unreachable. Per-call overridable via init.signal.
-const DEFAULT_TIMEOUT_MS = 25_000
+// Per-operation timeouts. Render's free tier sleeps after 15 min of
+// inactivity and cold-starts in ~30 s, on top of which the iris pipeline
+// adds 3-5 s of CPU work. So enroll/verify use 60 s; health is supposed
+// to be cheap so it gets 15 s (long enough to forgive a one-off cold
+// start, short enough that a genuinely-down backend doesn't block the
+// home page render forever).
+const TIMEOUT_HEALTH_MS = 15_000
+const TIMEOUT_PIPELINE_MS = 60_000
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+type RequestOpts = RequestInit & { timeoutMs?: number }
+
+async function request<T>(path: string, opts: RequestOpts = {}): Promise<T> {
+  const { timeoutMs = TIMEOUT_PIPELINE_MS, signal: callerSignal, ...init } = opts
   const ctl = new AbortController()
-  const timer = setTimeout(() => ctl.abort(), DEFAULT_TIMEOUT_MS)
+  const timer = setTimeout(() => ctl.abort(), timeoutMs)
+  // If the caller passed their own signal (e.g. React StrictMode unmounts), abort our
+  // request when theirs fires too.
+  const onCallerAbort = () => ctl.abort()
+  callerSignal?.addEventListener('abort', onCallerAbort)
   try {
-    const res = await fetch(`${API_BASE}${path}`, { ...init, signal: init?.signal ?? ctl.signal })
+    const res = await fetch(`${API_BASE}${path}`, { ...init, signal: ctl.signal })
     const text = await res.text()
     const body = text ? JSON.parse(text) : null
     if (!res.ok) {
       throw new TanikApiError(body as ApiError, res.status)
     }
     return body as T
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(
+        `Request timed out after ${Math.round(timeoutMs / 1000)} s. ` +
+          'The backend may be cold-starting (Render free tier sleeps after ' +
+          '15 min of inactivity and takes ~30 s to wake up). Try again in a moment.',
+      )
+    }
+    throw err
   } finally {
     clearTimeout(timer)
+    callerSignal?.removeEventListener('abort', onCallerAbort)
   }
 }
 
@@ -195,7 +215,7 @@ function buildFingerprintVerifyForm(p: FingerprintVerifyPayload): FormData {
 
 export const api = {
   apiBase: API_BASE,
-  health: () => request<Health>('/api/v1/health'),
+  health: () => request<Health>('/api/v1/health', { timeoutMs: TIMEOUT_HEALTH_MS }),
   enrollIris: (p: IrisEnrollPayload) =>
     request<IrisEnrollResult>('/api/v1/iris/enroll', {
       method: 'POST',

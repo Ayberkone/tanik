@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { WebcamCapture } from '@/components/webcam-capture'
 import { cn } from '@/lib/utils'
@@ -23,42 +23,50 @@ export type IrisFormProps = {
  * Shared image-source picker used by both /enroll and /verify.
  * Lets the operator switch between live webcam capture and file upload
  * without duplicating the toggle, the preview pane, or the error wiring.
+ *
+ * Callback props (`onImage`, `onError`) live in refs so this component's
+ * children — particularly `WebcamCapture` — never see callback identity
+ * churn from parent re-renders. Without this, typing in a sibling input
+ * tears down the camera stream every keystroke. See WebcamCapture docstring.
  */
 export function IrisForm({ onImage, onError, preview, disabled, className }: IrisFormProps) {
   const [source, setSource] = useState<IrisFormSource>('camera')
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
-  // Re-derive the preview URL when the blob changes; revoke on cleanup.
-  if (preview) {
-    if (!previewUrl || (preview as Blob).size > 0) {
-      // build a fresh URL — avoid leaks by revoking the old one in the next effect
-    }
-  }
+  const onImageRef = useRef(onImage)
+  const onErrorRef = useRef(onError)
+  useEffect(() => {
+    onImageRef.current = onImage
+  }, [onImage])
+  useEffect(() => {
+    onErrorRef.current = onError
+  }, [onError])
 
-  const setPreview = useCallback((blob: Blob | null) => {
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev)
-      return blob ? URL.createObjectURL(blob) : null
-    })
+  // Object URL is derived from the upstream blob — useMemo so we don't
+  // store it in state (avoids setState-in-effect). Cleanup effect revokes
+  // the previous URL whenever the memoised value changes (or on unmount),
+  // preventing object-URL leaks.
+  const previewUrl = useMemo(
+    () => (preview ? URL.createObjectURL(preview) : null),
+    [preview],
+  )
+  useEffect(() => {
+    if (!previewUrl) return
+    return () => URL.revokeObjectURL(previewUrl)
+  }, [previewUrl])
+
+  const handleCapture = useCallback((blob: Blob) => {
+    onImageRef.current(blob)
   }, [])
 
-  const handleCapture = useCallback(
-    (blob: Blob) => {
-      setPreview(blob)
-      onImage(blob)
-    },
-    [onImage, setPreview],
-  )
+  const handleCameraError = useCallback((msg: string) => {
+    onErrorRef.current?.(msg)
+  }, [])
 
-  const handleFile = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (!file) return
-      setPreview(file)
-      onImage(file)
-    },
-    [onImage, setPreview],
-  )
+  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    onImageRef.current(file)
+  }, [])
 
   return (
     <div className={cn('flex flex-col gap-3', className)} aria-disabled={disabled}>
@@ -92,7 +100,7 @@ export function IrisForm({ onImage, onError, preview, disabled, className }: Iri
       </div>
 
       {source === 'camera' ? (
-        <WebcamCapture onCapture={handleCapture} onError={onError} />
+        <WebcamCapture onCapture={handleCapture} onError={handleCameraError} />
       ) : (
         <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-muted px-6 py-12 text-sm text-muted-foreground hover:bg-muted/70">
           <span>Drop an iris image here, or click to browse</span>

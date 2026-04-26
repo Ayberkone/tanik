@@ -22,10 +22,17 @@ type Status = 'idle' | 'requesting' | 'live' | 'denied' | 'unsupported' | 'error
 /**
  * Webcam preview + single-frame capture.
  *
- * Lifecycle invariant: every MediaStreamTrack opened in the useEffect MUST
- * be `.stop()`-ed in the cleanup return. Forgetting this causes the camera
- * LED to stay on after navigation — the #1 expected production bug for
- * kiosk hardware. See CLAUDE.md frontend section.
+ * Lifecycle invariants:
+ * - Every MediaStreamTrack opened in the useEffect MUST be `.stop()`-ed in the
+ *   cleanup return. Forgetting this causes the camera LED to stay on after
+ *   navigation — the #1 expected production bug for kiosk hardware.
+ * - The stream-opening effect must NOT depend on the callback props
+ *   (`onCapture`, `onError`). Parent components routinely pass inline arrow
+ *   functions, whose identity changes on every parent render. If those were
+ *   in the dep array, every parent state change (e.g. typing in a sibling
+ *   input) would tear down and re-open the camera. Callbacks live in refs
+ *   (always current) and the effect re-runs only when the actual capture
+ *   parameters change (facingMode, width, height).
  */
 export function WebcamCapture({
   onCapture,
@@ -40,19 +47,30 @@ export function WebcamCapture({
   const [status, setStatus] = useState<Status>('idle')
   const [errMsg, setErrMsg] = useState<string | null>(null)
 
+  // Hold the latest callback identities in refs so the stream effect doesn't
+  // need them in its dep array. This is the canonical pattern for callback
+  // props that should "always be current" but should not retrigger an effect.
+  const onCaptureRef = useRef(onCapture)
+  const onErrorRef = useRef(onError)
+  useEffect(() => {
+    onCaptureRef.current = onCapture
+  }, [onCapture])
+  useEffect(() => {
+    onErrorRef.current = onError
+  }, [onError])
+
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
     if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
-      // Capability check is intentionally a one-shot setState inside the
-      // effect: a useState initializer would diverge between SSR (no
-      // navigator) and hydration, triggering a mismatch. The cascading-
-      // render concern the rule targets does not apply — we set once and
-      // return without further updates this tick.
+      // One-shot capability check that has to live in an effect: navigator
+      // is not available during SSR, so a useState initialiser would
+      // diverge between server and hydration. We set status once and
+      // return — no cascading renders, the rule's concern doesn't apply.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('unsupported')
-      onError?.('Browser does not expose camera APIs (getUserMedia missing).')
+      onErrorRef.current?.('Browser does not expose camera APIs (getUserMedia missing).')
       return
     }
 
@@ -82,12 +100,12 @@ export function WebcamCapture({
         if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
           setStatus('denied')
           setErrMsg('Camera permission was denied. Allow camera access and reload.')
-          onError?.('Camera permission denied.')
+          onErrorRef.current?.('Camera permission denied.')
         } else {
           setStatus('error')
           const message = err instanceof Error ? err.message : 'Could not open camera.'
           setErrMsg(message)
-          onError?.(message)
+          onErrorRef.current?.(message)
         }
       })
 
@@ -102,7 +120,10 @@ export function WebcamCapture({
         video.srcObject = null
       }
     }
-  }, [facingMode, width, height, onError])
+    // Intentionally NOT including onCapture / onError — see component docstring.
+    // facingMode/width/height genuinely change the requested stream, so they
+    // belong in the dep array.
+  }, [facingMode, width, height])
 
   const captureFrame = useCallback(() => {
     const video = videoRef.current
@@ -117,11 +138,11 @@ export function WebcamCapture({
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
     canvas.toBlob(
       (blob) => {
-        if (blob) onCapture(blob)
+        if (blob) onCaptureRef.current(blob)
       },
       'image/png',
     )
-  }, [onCapture, status])
+  }, [status])
 
   return (
     <div
