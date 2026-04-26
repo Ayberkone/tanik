@@ -201,15 +201,15 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 ## Current status
 
-**Phase:** 3 — first endpoint (`#41`) implementation complete locally, CI verification pending. Phase 2 closed and CI-verified green; Phase 1 deploy + DoD walkthrough still deferred per author decision.
+**Phase:** 3 — first endpoint (`#41`) shipped, backend CI green. Remaining Phase 3 work (`#42`, `#43`) is dataset-gated. Phase 2 closed and CI-verified green; Phase 1 deploy + DoD walkthrough still deferred per author decision.
 
-**Last local commit (pre-Phase-3 push):** `d3c9fff` docs(roadmap): Phase 2 shipped — backend CI green at ba85e81 (#10)
-**Branch:** `main`.
+**Last commit:** `cc48ace` feat(inference): unified POST /api/v1/verify with placeholder fusion (#41)
+**Branch:** `main`, in sync with `origin/main`. Backend CI green on `cc48ace`.
 
 **Phase 3 progress:**
-- ✅ `#41` Score normalisation + unified `POST /api/v1/verify` (local). Piecewise-linear normalisation anchored at the per-modality threshold (engine-native threshold → normalised 0.5), weighted-sum fusion with weights renormalised over the modalities present in the request. New endpoint accepts iris-only, fingerprint-only, or both; returns fused decision plus per-modality breakdown plus an in-band `calibration_status: "placeholder"` honesty signal. New `docs/fusion.md` documents the methodology, the reference (Ross & Jain 2003), and the explicit caveat that weights are placeholder until #43 ships measured numbers. `docs/api-contract.md` updated with the new endpoint definition. New tests: `test_fusion.py` (18 unit tests on the pure normalisation/fusion math) and `test_unified_verify.py` (9 integration tests; skip-guarded on JPype/JVM availability like the existing fingerprint suite). 39 backend tests passing locally; 22 skip on Mac without JVM and run on CI.
-- ⏳ `#42` Threshold-slider UI on a debug page — not started.
-- ⏳ `#43` `tests/evaluation/` FAR/FRR/ROC harness — not started; hard-blocked on dataset acquisition (`#11` ND-IRIS-0405 + FVC-style same-finger pairs).
+- ✅ `#41` Score normalisation + unified `POST /api/v1/verify`. Piecewise-linear normalisation anchored at the per-modality threshold (engine-native threshold → normalised 0.5), weighted-sum fusion with weights renormalised over the modalities present in the request. New endpoint accepts iris-only, fingerprint-only, or both; returns fused decision plus per-modality breakdown plus an in-band `calibration_status: "placeholder"` honesty signal. New `docs/fusion.md` documents the methodology, the reference (Ross & Jain 2003), and the explicit caveat that weights are placeholder until #43 ships measured numbers. `docs/api-contract.md` updated with the new endpoint definition. New tests: `test_fusion.py` (18 unit tests on the pure normalisation/fusion math) and `test_unified_verify.py` (9 integration tests; skip-guarded on JPype/JVM availability like the existing fingerprint suite). Backend CI green on `cc48ace` — 39 + 22 tests all pass on CI's JVM-equipped runner.
+- ⏳ `#42` Threshold-slider UI on a debug page — **dataset-gated** (DoD: "trades off FAR vs FRR live on the test set"). The UI scaffolding could be built ahead of the dataset, but the DoD cannot be demonstrated until `#43` produces a test set. Decision pending whether to (a) ship UI scaffolding + a DoD-deferred caveat, or (b) wait for the dataset.
+- ⏳ `#43` `tests/evaluation/` FAR/FRR/ROC harness — hard-blocked on dataset acquisition (`#11` ND-IRIS-0405 + FVC-style same-finger pairs).
 
 **Phase 2 implementation (7 of 7 tasks complete):**
 - ✅ SourceAFIS Python binding picked + vendored: JPype1 1.7.0 + sourceafis-java 3.18.1 (Apache 2.0, Maven Central, 181 KB JAR vendored at `apps/inference/tanik_inference/vendor/`). In-process JVM via JPype, mirrors `iris_engine`'s threadpool-offloaded shape (`#34`).
@@ -227,9 +227,13 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 **Open user-action items (SIDE):**
 - `#11` Execute ND-IRIS-0405 license agreement at https://cvrl.nd.edu/projects/data — Adam Czajka confirmed access path 2026-04-25; required for Phase 3 evaluation.
 
-**In flight:** Phase 3 #41 implementation complete locally (uncommitted on this branch). Commit + push + CI verification next.
+**In flight:** Nothing. Working tree clean, all commits pushed, backend CI green.
 
-**Next concrete action:** commit + push the #41 work, watch backend CI on `main`, then move to `#42` (threshold-slider UI on a debug page in `apps/client/`). `#43` (evaluation harness) remains hard-blocked on `#11` ND-IRIS-0405 + an FVC-style fingerprint dataset; until then `calibration_status` in unified-verify responses stays at `placeholder`.
+**Next concrete action:** decision required. Both remaining Phase 3 tasks (`#42`, `#43`) are blocked on dataset acquisition (`#11` ND-IRIS-0405 + an FVC-style fingerprint dataset). `#43`'s DoD literally is "publish measured FAR/FRR" — no dataset, no work. `#42`'s DoD is "live FAR/FRR tradeoff via the slider" — same blocker. The honest options:
+
+1. **Hold Phase 3 here.** `#41` shipped; wait for `#11` to land; resume `#42` + `#43` together when there's data. Picks up Phase 1 close-out (`#32` deploy, `#33` DoD walkthrough) in the meantime if author wants.
+2. **Build `#42`'s UI scaffolding ahead of data.** The slider, the per-modality breakdown panel, the live re-call to `/api/v1/verify` — all buildable now against a single fixed probe pair from the test fixtures, with the DoD ("over the test set") explicitly marked deferred until `#43` lands. Honest if labelled clearly; risks being polish on a foundation that may shift when calibration moves the threshold semantics.
+3. **Pivot to Phase 1 close-out.** `#32` (deploy) is the one open Phase-1 task that doesn't need data — would make everything from the start of the project actually reachable from outside the laptop.
 
 **Honest gap noted in DoD walkthrough:** the literal "same finger across two impressions matches" assertion is not verified. The MINEX validation set ships only one impression per finger, so the test suite covers (a) self-match (identical bytes) and (b) different-finger pairs across subjects. Genuine vs impostor pairing needs an FVC-style dataset, recorded in `BACKLOG.md` as a Phase 3 prerequisite.
 
