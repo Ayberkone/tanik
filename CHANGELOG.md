@@ -20,6 +20,11 @@ The first tagged release will land at the end of Phase 5.
 - **`CHANGELOG.md`** (this file) — backfilled from git history.
 - 18 new unit tests in `tests/test_fusion.py` (anchor points, monotonicity, clamping, fusion identities) + 9 integration tests in `tests/test_unified_verify.py` (iris-only, fingerprint-only, both, impostor pair, half-supplied request, cross-modality `subject_id` 404, calibration-status surfacing). Backend: 39 + 22 tests pass on CI.
 
+### Added — Phase 3 dataset prep
+
+- **`docs/performance.md`** (skeleton) — locks the structure of the FAR/FRR/ROC report ahead of `#11` (ND-IRIS-0405) + the FVC-style fingerprint dataset landing. Every numeric cell is `TBD`; the harness in `tests/evaluation/` (`#43`) writes them when the data is available. Includes the explicit honesty pledge that no number in the document has ever been hand-typed.
+- Outreach: `docs/outreach/nd-iris-request.md` repo URL placeholder filled in (repo is now public).
+
 ### Added — Phase 4 prep documentation (Phase 3 in-flight)
 
 - **`docs/threat-model.md`** (working draft) — scope, attacker model, asset inventory, attack surface, and a concrete attack-by-attack table with current mitigations and gaps. Honest about what TANIK defends and what it doesn't (presentation attack, replay, template theft, template inversion, DoS, side-channels, image-decoder vulnerabilities). Maps gaps to specific Phase 4 work and to ISO/IEC 19795 / 24745 / 30107.

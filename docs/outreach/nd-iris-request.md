@@ -18,4 +18,4 @@ Thank you for your time, and for making the dataset available to the research co
 Best regards,
 Ayberk Baytok
 ayberk.baytok@gmail.com
-Project repository: (will be filled in once the repo is public)
+Project repository: https://github.com/Ayberkone/tanik

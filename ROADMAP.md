@@ -229,11 +229,23 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 **In flight:** Nothing. Working tree clean, all commits pushed, backend CI green.
 
-**Next concrete action:** decision required. Both remaining Phase 3 tasks (`#42`, `#43`) are blocked on dataset acquisition (`#11` ND-IRIS-0405 + an FVC-style fingerprint dataset). `#43`'s DoD literally is "publish measured FAR/FRR" — no dataset, no work. `#42`'s DoD is "live FAR/FRR tradeoff via the slider" — same blocker. The honest options:
+**Catch-up + Phase 4 prep documentation shipped this session** (commits `350ad52`, `99a95de`, and the docs commit that follows):
+- `docs/architecture.md` — top-to-bottom system walkthrough; doubles as Proline-presentation material.
+- `docs/nd-iris-0405-access.md` — actionable step-by-step license-execution checklist for `#11`.
+- `docs/threat-model.md` — working draft; scope, attacker model, asset inventory, attack-by-attack table.
+- `docs/privacy.md` — working draft; KVKK + GDPR + EU AI Act posture; "templates ARE personal data" precision.
+- `docs/pad.md` — Phase 4 PAD skeleton; ISO/IEC 30107 framework + candidate datasets and approaches.
+- `docs/performance.md` — skeleton with every metric `TBD`; will be machine-written by `#43` once data lands.
+- `CHANGELOG.md` — backfilled from git history in Keep-a-Changelog format.
+- `BACKLOG.md` — three new entries surfaced this session (`#42`'s dataset gate; in-band placeholder→calibrated promotion; cross-modality subject linking for Phase 4).
 
-1. **Hold Phase 3 here.** `#41` shipped; wait for `#11` to land; resume `#42` + `#43` together when there's data. Picks up Phase 1 close-out (`#32` deploy, `#33` DoD walkthrough) in the meantime if author wants.
-2. **Build `#42`'s UI scaffolding ahead of data.** The slider, the per-modality breakdown panel, the live re-call to `/api/v1/verify` — all buildable now against a single fixed probe pair from the test fixtures, with the DoD ("over the test set") explicitly marked deferred until `#43` lands. Honest if labelled clearly; risks being polish on a foundation that may shift when calibration moves the threshold semantics.
-3. **Pivot to Phase 1 close-out.** `#32` (deploy) is the one open Phase-1 task that doesn't need data — would make everything from the start of the project actually reachable from outside the laptop.
+**Next concrete action when the author returns.** Decision required. Three viable paths, in honest order of value:
+
+1. **Execute `#11` (ND-IRIS-0405 license).** Only the author can do this — it requires an institutional email + signature. `docs/nd-iris-0405-access.md` is the step-by-step guide. Unblocks `#42` and `#43` and lets Phase 3 actually close.
+2. **`#32` deploy.** The one open task that doesn't need data; would make the project externally reachable. Recommended split: Vercel (client) + Railway (backend).
+3. **Hold and read.** This session's recursive push produced ~6 new docs. Reading `docs/architecture.md` end-to-end is the fastest way to catch up on what's been built.
+
+Phase 3 tasks `#42` and `#43` remain hard-blocked on `#11` + an FVC-style fingerprint dataset. The BACKLOG entry on `#42` explicitly warns against building it ahead of data — it would be polish on a foundation whose calibration is going to move.
 
 **Honest gap noted in DoD walkthrough:** the literal "same finger across two impressions matches" assertion is not verified. The MINEX validation set ships only one impression per finger, so the test suite covers (a) self-match (identical bytes) and (b) different-finger pairs across subjects. Genuine vs impostor pairing needs an FVC-style dataset, recorded in `BACKLOG.md` as a Phase 3 prerequisite.
 
