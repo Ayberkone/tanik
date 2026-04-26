@@ -108,7 +108,10 @@ tanik/
 │   ├── threat-model.md      # Working draft (Phase 4 prep)
 │   ├── privacy.md           # Working draft (Phase 4 prep) — KVKK + GDPR posture
 │   ├── pad.md               # Skeleton (Phase 4) — presentation-attack-detection plan
-│   └── performance.md       # arrives in Phase 3 #43 (auto-generated)
+│   ├── admin-api.md         # Skeleton (Phase 4) — operator API surface
+│   ├── admin-dashboard.md   # Skeleton (Phase 4) — operator UI surface
+│   ├── blog-post-draft.md   # Phase 5 prep — tech-blog draft (publishable when ready)
+│   └── performance.md       # Skeleton; arrives in Phase 3 #43 (auto-generated)
 ├── notebooks/
 │   ├── 00_iris_spike.ipynb  # Phase 0 walkthrough of the open-iris pipeline
 │   └── README.md
