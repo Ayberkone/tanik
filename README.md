@@ -60,7 +60,7 @@ See `docs/sequence-flow.md` for the full state-machine + sequence diagrams (Merm
 - **No authentication.** Single-deployment, no users.
 - **KVKK / GDPR posture.** Templates are personal data; documented properly when `docs/privacy.md` lands in Phase 4.
 
-The full threat model document arrives in Phase 4 (`docs/threat-model.md`). Do not infer security claims that are not made in this README or that document.
+A working-draft threat model is at `docs/threat-model.md`; it will be revised through Phase 4 as PAD and the admin surface land. Do not infer security claims that are not made in this README, that document, or `docs/privacy.md`.
 
 ## Honest metrics
 
