@@ -290,6 +290,7 @@ apps/inference/                      ← FastAPI service
 
 apps/client/                         ← Next.js 16 app
 ├── app/
+│   ├── layout.tsx                   root layout
 │   ├── page.tsx                     home — 4-card grid
 │   ├── enroll/page.tsx              iris enroll
 │   ├── verify/page.tsx              iris verify
@@ -307,19 +308,27 @@ apps/client/                         ← Next.js 16 app
     └── utils.ts
 
 docs/
+├── README.md                        directory index — start here for navigation
+├── architecture.md                  this document ★ Phase 3
 ├── api-contract.md                  HTTP contract — source of truth
 ├── sequence-flow.md                 Mermaid state machine + sequence diagrams
 ├── development.md                   how to run locally
 ├── datasets.md                      every dataset used (source + license)
-├── fusion.md                        fusion methodology + placeholder calibration ★ Phase 3
-├── architecture.md                  this document ★ Phase 3
+├── glossary.md                      biometrics vocabulary reference
 ├── nd-iris-0405-access.md           how to obtain the Phase 3 iris dataset ★ Phase 3
-├── outreach/                        email drafts to dataset providers
-├── threat-model.md                  arrives in Phase 4
-├── performance.md                   arrives in Phase 3 #43
-├── pad.md                           arrives in Phase 4
-└── privacy.md                       arrives in Phase 4
+├── fusion.md                        fusion methodology + placeholder calibration ★ Phase 3
+├── performance.md                   skeleton — auto-written by Phase 3 #43
+├── threat-model.md                  Phase 4 prep — working draft
+├── privacy.md                       Phase 4 prep — KVKK + GDPR posture
+├── pad.md                           Phase 4 prep — PAD plan skeleton
+├── admin-api.md                     Phase 4 prep — operator API skeleton
+├── admin-dashboard.md               Phase 4 prep — operator UI skeleton
+├── comparison.md                    TANIK vs commercial vendors + other open-source
+├── blog-post-draft.md               Phase 5 prep — tech-blog draft
+├── proline-pitch-deck.md            Phase 5 prep — Marp-renderable slide deck
+└── outreach/                        email drafts to dataset providers
 
+OWNER-ACTIONS.md                     things only the human owner can do
 ROADMAP.md                           phase definitions of done + current status
 BACKLOG.md                           ideas/follow-ups not in any current phase
 CHANGELOG.md                         version history (Keep-a-Changelog)
