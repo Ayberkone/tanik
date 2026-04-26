@@ -8,13 +8,20 @@ When you complete an item, move it to the **Done** section at the bottom and not
 
 ## Pending
 
-### 1. `#11` Execute the ND-IRIS-0405 license agreement
+### 1. `#11` Acquire a research-grade iris dataset for evaluation
 
-- **Why this needs you, not Claude.** Requires (a) an institutional point of contact with contracting authority, (b) submission from an institutional email address (cvrl@nd.edu does not accept Gmail/Yahoo), (c) a signed legal document. Claude cannot do any of these.
-- **Why it's load-bearing.** Phase 3 `#42` (threshold-slider UI) and `#43` (FAR/FRR/ROC harness) are both blocked on this. Without it, `docs/performance.md` cannot ship measured numbers and the unified `/api/v1/verify` endpoint stays at `calibration_status: "placeholder"` forever.
-- **Smallest next step.** Read `docs/nd-iris-0405-access.md` end-to-end — it's the step-by-step. The first decision is **who signs**: independent-researcher route (email Adam at `cvrl@nd.edu` first to ask about the path for unaffiliated open-source authors) vs. institutional route (find a Turkish university research group or Proline R&D legal contact willing to be the named licensee). Adam already replied once (2026-04-25) and gave the access pointer; this is the natural follow-up.
-- **Estimated effort.** Hours of human time; weeks of calendar time waiting for institutional signatures and ND-CVRL review.
-- **Related files.** `docs/nd-iris-0405-access.md`, `docs/outreach/nd-iris-request.md`, `docs/outreach/nd-iris-thanks.md`.
+The original framing was "execute the ND-IRIS-0405 license agreement." Reading the license agreement carefully revealed a hard wall: ND-CVRL **will not accept** signatures from students, postdocs, or non-delegated faculty, and submissions must come from an institutional email address (no Gmail). As a solo independent author, **the institutional-licensee route is not available without external sponsorship**.
+
+The realistic plan is two parallel asks:
+
+**1a. CASIA-Iris-V4 (primary).** Apply via CASIA / CBSR; individuals are eligible in practice. Smallest next step: read `docs/casia-iris-access.md`, find the current submission contact on `biometrics.idealtest.org` (the URL in this guide may have moved), then send the draft in `docs/outreach/casia-iris-request.md` (adapted to the live contact). Estimated effort: 30 minutes drafting + days-to-weeks waiting.
+
+**1b. ND-CVRL honest-ask (in parallel).** Send the draft in `docs/outreach/nd-iris-independent-author.md` to `cvrl@nd.edu` cc'ing `aczajka@nd.edu`. The draft asks plainly whether ND-CVRL has any path for unaffiliated authors. The likely answer is "no" — but the question is worth asking once cleanly rather than spending weeks trying to construct an institutional fiction. If they say no, that's fine; CASIA carries the project. If they suggest a path, take it. Estimated effort: 5 minutes (the draft is ready).
+
+**1c. UBIRIS.v2 (no-gate fallback).** If both CASIA and ND-CVRL refuse, register at <https://www.cs.ubi.pt/projects/ubipr/ubiris2.html> and download. Visible-light captures rather than NIR — weaker for evaluation, but available with no committee gate. Document the trade-off in `docs/datasets.md` if you go this route.
+
+- **Why it's load-bearing.** Phase 3 `#42` and `#43` are both blocked on this. Until a research-grade iris dataset is in hand, `docs/performance.md` cannot ship measured numbers and the unified `/api/v1/verify` endpoint stays at `calibration_status: "placeholder"`.
+- **Related files.** `docs/casia-iris-access.md` (primary path), `docs/nd-iris-0405-access.md` (the wall, documented), `docs/outreach/casia-iris-request.md` (CASIA email draft), `docs/outreach/nd-iris-independent-author.md` (ND-CVRL honest-ask draft), `docs/outreach/nd-iris-request.md` + `docs/outreach/nd-iris-thanks.md` (earlier ND-CVRL correspondence).
 
 ### 2. `#11-fingerprint` Acquire an FVC-style fingerprint dataset
 

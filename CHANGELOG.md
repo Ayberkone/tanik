@@ -44,6 +44,18 @@ The first tagged release will land at the end of Phase 5.
 
 - **`OWNER-ACTIONS.md`** (root-level) — consolidates the tasks Claude cannot do (institutional license signatures, account creation, real-face DoD walkthrough, dataset acquisition) into one checklist with "smallest next step" framing. Five pending items; empty Done section ready to grow.
 
+### Changed — Phase 3 iris-dataset plan revised (CASIA primary)
+
+User-feedback driven: the original `#11` framing assumed the ND-IRIS-0405 license could be navigated. Reading the license carefully showed a hard institutional-signature wall (no students, no postdocs, no non-delegated faculty, no Gmail submissions) — as a solo independent author this is a wall, not a friction point.
+
+New plan:
+
+- **Primary: CASIA-Iris-V4.** Application-based but individuals are eligible in practice. New `docs/casia-iris-access.md` (the access guide) and `docs/outreach/casia-iris-request.md` (a ready-to-adapt application email).
+- **Parallel honest-ask: ND-CVRL.** New `docs/outreach/nd-iris-independent-author.md` puts the question to `cvrl@nd.edu` plainly — does ND-CVRL have any path for unaffiliated open-source authors, or is the institutional wall hard? Ask once cleanly; the answer (likely "no") informs whether to chase institutional sponsorship or stay on CASIA.
+- **No-gate fallback: UBIRIS.v2.** If both CASIA and ND-CVRL refuse, UBIRIS registration is open. Visible-light captures rather than NIR — documented trade-off.
+
+`OWNER-ACTIONS.md` rewritten under item 1 to reflect the three-way ask. `docs/nd-iris-0405-access.md` opens with a status note flagging the institutional wall and pointing readers at the CASIA primary path.
+
 ### Changed — audit-driven consistency pass
 
 - **Health endpoint extended.** `GET /api/v1/health` now returns `fingerprint_engine` (e.g. `"sourceafis/3.18.1"`) and `calibration_status` (`"placeholder"` today) alongside the existing `iris_engine` + `version`. JVM startup is *not* triggered by `/health` — the version string comes from a module constant. Contract + client `Health` type updated to match. A monitoring system polling `/health` can now flag deployments still on placeholder calibration without parsing the unified-verify response.

@@ -1,6 +1,8 @@
 # ND-IRIS-0405 access — step-by-step
 
-What you need to do, in order, to obtain the ND-IRIS-0405 dataset (the Phase 3 iris-evaluation prerequisite — task `#11` in the active task list).
+> **Status update (2026-04-26):** ND-CVRL's license terms are explicit that signatures must come from an individual *authorised to make legal commitments on behalf of an organisation* — students, postdocs, and non-delegated faculty are excluded. **For an unaffiliated independent author this is a hard wall.** The honest-ask draft in `docs/outreach/nd-iris-independent-author.md` puts the question to ND-CVRL plainly. Pending their response, **the primary Phase 3 iris-dataset path is CASIA-Iris-V4** — see `docs/casia-iris-access.md`. This document is preserved as the reference for the ND-IRIS-0405 process *if* an institutional sponsor materialises (Proline R&D, a Turkish university research group, etc.).
+
+What you would need to do, in order, to obtain the ND-IRIS-0405 dataset (the original Phase 3 iris-evaluation prerequisite — task `#11` in the active task list).
 
 > **Why this dataset?** ND-IRIS-0405 ships 64,980 iris images from 356 subjects (712 unique irises), captured at the University of Notre Dame between January 2004 and May 2005. It is the canonical research-grade NIR iris dataset and is the only realistic basis on which to compute FAR / FRR for the iris pipeline honestly. Without it, `docs/performance.md` cannot ship measured numbers, which means the unified `/api/v1/verify` endpoint stays at `calibration_status: "placeholder"`.
 
