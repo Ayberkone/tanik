@@ -2,7 +2,7 @@
 
 Every biometric dataset referenced anywhere in this repo, with its source, license, and access conditions. Biometric data is personal data; the provenance matters.
 
-**This document is a stub maintained as datasets are added.** The comprehensive list arrives with Phase 3's evaluation work, where FAR/FRR measurement actually depends on dataset composition.
+**This document grows as datasets are added.** The Phase 3 evaluation work formalises the dataset list once `#11` (ND-IRIS-0405) and the FVC-style fingerprint set land — that's when FAR/FRR measurement starts depending on a documented composition.
 
 ## Principle
 
@@ -25,8 +25,12 @@ Every biometric dataset referenced anywhere in this repo, with its source, licen
 
 ### ND-IRIS-0405 (University of Notre Dame)
 
-- **Status:** Access request draft at `docs/outreach/nd-iris-request.md`, addressed to Prof. Adam Czajka.
-- **Purpose:** Phase 3 FAR/FRR evaluation. Larger scale, better-documented subject splits than MMU.
+- **Composition:** 64,980 NIR iris images from 356 subjects (712 unique irises), captured at the University of Notre Dame between January 2004 and May 2005.
+- **Status:** License-execution in progress. Adam Czajka (ND CVRL) confirmed the formal access path 2026-04-25; license agreement at <https://cvrl.nd.edu/media/django-summernote/2018-09-19/397132ea-96bd-4f41-b796-7ffd63021e41.pdf>. Step-by-step author-side guide at `docs/nd-iris-0405-access.md`. Outreach in `docs/outreach/nd-iris-request.md`.
+- **Purpose:** Phase 3 FAR/FRR evaluation (`#11` → `#43`). Larger scale and better-documented subject splits than MMU.
+- **Delivery:** Globus transfer after ND-CVRL approval.
+- **Storage:** outside the repo (suggested `~/datasets/nd-iris-0405/`); never committed.
+- **Citation requirement:** publications and public reports using this dataset must cite the paper named in the license agreement.
 
 ### CASIA-Iris (Institute of Automation, Chinese Academy of Sciences)
 
@@ -58,4 +62,28 @@ Every biometric dataset referenced anywhere in this repo, with its source, licen
 
 ### FVC2002 / FVC2004 DB1_B (free subsets)
 
-- **Status:** noted as the natural Phase 3 candidate for genuine/impostor pairs. The competition's "B" subsets are widely treated as freely usable for academic research; the FVC website is no longer authoritative, so any use must verify the licence wording at acquisition time. Not vendored, not yet referenced in tests.
+- **Composition (typical):** 80 fingerprint images per database in the "B" subset (10 fingers × 8 impressions). Multiple impressions per finger is the property MINEX III lacks and is what makes FVC-style data the right choice for genuine-vs-impostor scoring.
+- **Status:** noted as the natural Phase 3 candidate for genuine/impostor pairs. The competition's "B" subsets are widely treated as freely usable for academic research; the FVC website is no longer authoritative, so any use must verify the licence wording at acquisition time. Not vendored, not yet referenced in tests. BACKLOG-tracked.
+
+## Planned (access in progress) — PAD (Phase 4)
+
+The Phase 4 PAD module needs labelled bona-fide-vs-attack pairs. Candidate sources, in order of preference (final selection happens in Phase 4 once licensing is verified):
+
+### NDIris3D (University of Notre Dame)
+
+- **Composition:** Live + 3D-printed iris attacks.
+- **Access:** ND CVRL, same license route as ND-IRIS-0405. Follow the `docs/nd-iris-0405-access.md` procedure with the dataset name swapped.
+- **Role:** Strong candidate for the v1 iris-PAD training/evaluation set.
+
+### CASIA-Iris-Fake (Institute of Automation, Chinese Academy of Sciences)
+
+- **Composition:** Live + printed-photo + contact-lens iris attacks.
+- **Access:** Request-based via CASIA's biometrics group. Older but well-cited.
+
+### LivDet-Iris and LivDet-Fingerprint (annual competitions)
+
+- **Composition:** Per-edition bona-fide + spoof sets across multiple sensors and attack types. LivDet-Iris-2017 / 2020 / 2023; LivDet-Fingerprint similar cadence.
+- **Access:** Per-edition; <https://livdet.org/>.
+- **Role:** Useful as evaluation sets even if v1 trains on a different dataset — published per-year results give a realistic upper bound on what software-only PAD achieves.
+
+See `docs/pad.md` for the full PAD plan, including ISO/IEC 30107 framing and the candidate approaches.

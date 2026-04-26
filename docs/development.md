@@ -57,6 +57,21 @@ All optional, prefixed `TANIK_`:
 | `TANIK_FINGERPRINT_MATCH_THRESHOLD` | `40.0` | SourceAFIS similarity at or above which fingerprint verify returns `matched: true` (FMR=0.01% per upstream) |
 | `TANIK_MAX_UPLOAD_BYTES` | `10485760` | reject uploads larger than this with 413 |
 
+#### Phase 3 fusion (unified `/api/v1/verify`)
+
+These knobs control score normalisation and weighted-sum fusion. **All defaults are placeholders** — they're chosen so the unified endpoint runs end-to-end, not tuned. See `docs/fusion.md` for the methodology and `docs/performance.md` (skeleton) for where calibrated values will land.
+
+| var | default | meaning |
+|---|---|---|
+| `TANIK_IRIS_HD_FLOOR` | `0.0` | Iris HD at or below this maps to normalised `1.0` |
+| `TANIK_IRIS_HD_CEIL` | `0.5` | Iris HD at or above this maps to normalised `0.0` (statistical-independence boundary) |
+| `TANIK_FINGERPRINT_SCORE_CEIL` | `200.0` | Fingerprint score at or above this maps to normalised `1.0` |
+| `TANIK_FUSION_IRIS_WEIGHT` | `0.5` | Iris weight in the fused sum (renormalised over present modalities) |
+| `TANIK_FUSION_FINGERPRINT_WEIGHT` | `0.5` | Fingerprint weight, same renormalisation |
+| `TANIK_FUSION_DECISION_THRESHOLD` | `0.5` | Fused score at or above this returns `matched: true` |
+
+Anchoring rule: each per-modality match threshold (`TANIK_IRIS_MATCH_THRESHOLD`, `TANIK_FINGERPRINT_MATCH_THRESHOLD`) is the value that maps to a normalised score of exactly `0.5`. Move the per-modality threshold and the normalisation curve moves with it; you do not need to retune the floor and ceil to keep the anchor consistent.
+
 ### Java runtime (Phase 2 onwards)
 
 Phase 2 added SourceAFIS for fingerprint matching, called from Python via JPype. The vendored JAR (`apps/inference/tanik_inference/vendor/sourceafis-3.18.1.jar`) is loaded into an in-process JVM the first time any fingerprint endpoint or test runs.
