@@ -59,7 +59,7 @@ Note that the raw image's "retention" is *zero by design* — there is no code p
 
 ### HTTP API (`apps/inference/tanik_inference/routes/`)
 
-Five endpoints today (listed in `docs/api-contract.md`). Every multipart upload is:
+Six endpoints today (listed in `docs/api-contract.md`): `GET /health`, `POST /iris/{enroll,verify}`, `POST /fingerprint/{enroll,verify}`, and the Phase 3 `POST /verify` unified-fused endpoint. Every multipart upload is:
 
 1. Capped at 10 MB (`TANIK_MAX_UPLOAD_BYTES`) — beyond which Starlette returns 413 before the bytes are buffered.
 2. Validated against PNG/JPEG/BMP magic bytes via the `filetype` library — *not* against the `Content-Type` header (which a hostile client trivially controls).
@@ -146,7 +146,7 @@ Fingerprint matching crosses into the JVM via JPype. The JVM is started once per
 |---|---|---|
 | **Template encryption at rest with HSM-backed keys** | AES-256-GCM per-template; key in HSM with rotation policy; access audit | Key management is the operationally heaviest part of biometrics; a reference that gets it wrong misleads operators. Productionisation work. |
 | **Operator authentication + RBAC + audit trail** | OIDC integration, role definitions (operator / admin / auditor), every mutating operation written to an append-only log | Single-deployment v1 has no operators. Phase 4 adds the admin dashboard and the audit trail at the same time, since they're entangled. |
-| **Network segmentation** | Inference service in a private subnet, not internet-facing; client behind a TLS terminator + WAF | Architectural pattern, not a code change. Documented in deploy notes when `#32` ships. |
+| **Network segmentation** | Inference service in a private subnet, not internet-facing; client behind a TLS terminator + WAF | Architectural pattern, not a code change. The current public deployment (`#32` shipped 2026-04-26) puts both services on managed PaaS (Vercel + Render) with TLS terminated at the platform; documented in `OWNER-ACTIONS.md` (Done section) and `docs/development.md`. |
 | **Vulnerability management** | Dependabot or Renovate; SBOM generation; periodic scan against CVEs in OpenCV / SourceAFIS / open-iris | Phase 5 polish. |
 | **Backup & disaster recovery** | Encrypted snapshots of the templates DB; recovery drill cadence | Operational; out of scope for the reference. |
 
