@@ -253,7 +253,7 @@ All non-2xx responses return:
 
 ## CORS
 
-`Access-Control-Allow-Origin` is set per request to whatever origin matched the configured allowlist (env var `CORS_ALLOW_ORIGINS`, comma-separated). No wildcard. The client must be served from a listed origin.
+`Access-Control-Allow-Origin` is set per request to whatever origin matched the configured allowlist (env var `TANIK_CORS_ALLOW_ORIGINS`, comma-separated). No wildcard. The client must be served from a listed origin.
 
 ## Logging
 

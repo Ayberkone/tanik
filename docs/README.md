@@ -22,7 +22,9 @@ For the project as a whole, start with the root [`README.md`](../README.md), the
 |---|---|
 | [`fusion.md`](fusion.md) | Score-normalisation + weighted-sum fusion methodology + the explicit calibration-placeholder caveat |
 | [`performance.md`](performance.md) | **Skeleton** for FAR/FRR/ROC reporting; every cell is `TBD`; will be machine-written by `tests/evaluation/` (`#43`) once dataset acquisition (`#11`) lands |
-| [`nd-iris-0405-access.md`](nd-iris-0405-access.md) | Step-by-step license-execution checklist for the Phase 3 iris dataset (`#11`) — what only the human owner can do |
+| [`polyu-iris-access.md`](polyu-iris-access.md) | **Primary** Phase 3 iris-dataset access guide — PolyU Cross-Spectral; web-form application; comparison table of all five candidate iris datasets considered |
+| [`nd-iris-0405-access.md`](nd-iris-0405-access.md) | Phase 3 iris-dataset access guide — ND-IRIS-0405; institutional-signature wall documented; honest-ask sent in parallel |
+| [`casia-iris-access.md`](casia-iris-access.md) | Phase 3 iris-dataset access guide — CASIA-Iris; fallback path; site intermittently unreachable so kept ready, not active |
 | [`datasets.md`](datasets.md) | Every dataset referenced in the repo with source + license + access path |
 
 ## Phase 4 prep (working drafts / skeletons)
@@ -49,8 +51,11 @@ These are written ahead of Phase 4 implementation deliberately — to lock the f
 
 | Doc | What it's for |
 |---|---|
-| [`outreach/nd-iris-request.md`](outreach/nd-iris-request.md) | Email draft for ND-CVRL access request |
+| [`outreach/polyu-iris-request.md`](outreach/polyu-iris-request.md) | Form-field text for the PolyU Cross-Spectral web-form application (primary path) — sent 2026-04-26 |
+| [`outreach/nd-iris-independent-author.md`](outreach/nd-iris-independent-author.md) | Honest-ask email to `cvrl@nd.edu` — does ND-CVRL have any path for unaffiliated authors? Sent 2026-04-26 in parallel |
+| [`outreach/nd-iris-request.md`](outreach/nd-iris-request.md) | Earlier email draft for ND-CVRL access request (pre-pivot; kept for context) |
 | [`outreach/nd-iris-thanks.md`](outreach/nd-iris-thanks.md) | Reply draft to Adam Czajka (2026-04-25) acknowledging the access pointer + the OpenSourceIrisRecognition pointer |
+| [`outreach/casia-iris-request.md`](outreach/casia-iris-request.md) | Application-email draft for CASIA-Iris (fallback) — ready to send if/when CASIA's site becomes reachable |
 
 ---
 

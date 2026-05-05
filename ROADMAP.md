@@ -211,12 +211,12 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 - Inference (Render): <https://tanik.onrender.com> · health: <https://tanik.onrender.com/api/v1/health>
 - Free-tier trade-offs known and documented (Render 15-min sleep, ephemeral SQLite, Vercel framework-preset gotcha).
 
-**Documentation surface (current):** index at [`docs/README.md`](docs/README.md). Sixteen documents organised by purpose (start-here / Phase 3 / Phase 4 prep / Phase 5 prep / outreach).
+**Documentation surface (current):** index at [`docs/README.md`](docs/README.md). Nineteen documents in `docs/` plus five outreach drafts in `docs/outreach/`, organised by purpose (start-here / Phase 3 / Phase 4 prep / Phase 5 prep / outreach).
 
 **Phase 3 progress:**
 - ✅ `#41` Score normalisation + unified `POST /api/v1/verify`. Piecewise-linear normalisation anchored at the per-modality threshold (engine-native threshold → normalised 0.5), weighted-sum fusion with weights renormalised over the modalities present in the request. New endpoint accepts iris-only, fingerprint-only, or both; returns fused decision plus per-modality breakdown plus an in-band `calibration_status: "placeholder"` honesty signal. New `docs/fusion.md` documents the methodology, the reference (Ross & Jain 2003), and the explicit caveat that weights are placeholder until #43 ships measured numbers. `docs/api-contract.md` updated with the new endpoint definition. New tests: `test_fusion.py` (18 unit tests on the pure normalisation/fusion math) and `test_unified_verify.py` (9 integration tests; skip-guarded on JPype/JVM availability like the existing fingerprint suite). Backend CI green on `cc48ace` — 39 + 22 tests all pass on CI's JVM-equipped runner.
 - ⏳ `#42` Threshold-slider UI on a debug page — **dataset-gated** (DoD: "trades off FAR vs FRR live on the test set"). The UI scaffolding could be built ahead of the dataset, but the DoD cannot be demonstrated until `#43` produces a test set. Decision pending whether to (a) ship UI scaffolding + a DoD-deferred caveat, or (b) wait for the dataset.
-- ⏳ `#43` `tests/evaluation/` FAR/FRR/ROC harness — hard-blocked on dataset acquisition (`#11` ND-IRIS-0405 + FVC-style same-finger pairs).
+- ⏳ `#43` `tests/evaluation/` FAR/FRR/ROC harness — hard-blocked on dataset acquisition (`#11` PolyU Cross-Spectral primary, ND-IRIS-0405 honest-ask parallel; plus FVC-style same-finger pairs on the fingerprint side).
 
 **Phase 2 implementation (7 of 7 tasks complete):**
 - ✅ SourceAFIS Python binding picked + vendored: JPype1 1.7.0 + sourceafis-java 3.18.1 (Apache 2.0, Maven Central, 181 KB JAR vendored at `apps/inference/tanik_inference/vendor/`). In-process JVM via JPype, mirrors `iris_engine`'s threadpool-offloaded shape (`#34`).
