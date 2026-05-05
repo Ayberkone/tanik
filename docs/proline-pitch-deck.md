@@ -235,7 +235,7 @@ Speaker notes:
 
 ## The honest twist
 
-Today: I don't have measured FAR/FRR. I'm waiting on a license for ND-IRIS-0405 and an FVC-style fingerprint dataset.
+Today: I don't have measured FAR/FRR. I'm waiting on access to a research-grade iris dataset (PolyU Cross-Spectral primary; ND-IRIS-0405 honest-ask parallel) and an FVC-style fingerprint dataset.
 
 So the API responds honestly:
 

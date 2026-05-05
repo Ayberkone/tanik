@@ -84,10 +84,10 @@ Phase 2 added SourceAFIS for fingerprint matching, called from Python via JPype.
 ### Backend tests
 
 ```bash
-.venv/bin/pytest apps/inference/tests        # 15 tests, ~5 s after first model download
+.venv/bin/pytest apps/inference/tests        # 61 tests (39 always-on + 22 SourceAFIS/JVM-gated)
 ```
 
-The test suite uses an in-memory SQLite (`StaticPool`) and downloads three Worldcoin public iris fixtures into a gitignored cache on first run. CI in `.github/workflows/backend.yml` runs the same suite.
+The test suite uses an in-memory SQLite (`StaticPool`) and downloads Worldcoin public iris fixtures + NIST MINEX III fingerprint fixtures into a gitignored cache on first run. The 22 fingerprint tests skip cleanly when JPype/JVM isn't importable — Apple Silicon dev without the JDK toolchain hits this case. CI runs against Temurin 17 + JPype1 1.7.0 + the vendored SourceAFIS JAR so all 61 execute. CI workflow at `.github/workflows/backend.yml`.
 
 ## Native — client
 
@@ -106,7 +106,7 @@ The home page server-renders the backend health probe. If you see "unreachable" 
 
 ```bash
 cd apps/client
-npm run test:e2e        # Playwright headless chromium, 7 tests (~3 s)
+npm run test:e2e        # Playwright headless chromium, 15 tests across 6 spec files
 npm run test:e2e:ui     # Playwright UI mode (browser inspector)
 npm run lint
 npm run build
@@ -133,5 +133,5 @@ The Phase 0 spike notebook (`notebooks/00_iris_spike.ipynb`) runs against the sa
 - **`~/.npm` permission errors.** If `npm install` complains about EACCES on `~/.npm/_cacache`, the cache has root-owned files from a previous sudo install. Fix once with: `sudo chown -R $(whoami) ~/.npm`. Or work around per-command with `NPM_CONFIG_CACHE=/tmp/npm-cache-tanik npm install`.
 - **`opencv-python` vs `opencv-python-headless`.** open-iris pulls `opencv-python`, which needs `libGL.so.1` and breaks in slim Docker images. The backend Dockerfile swaps it for `opencv-python-headless` after install. Local dev is unaffected.
 - **First Docker build is slow.** ~5–10 minutes because of open-iris install + ONNX model pre-download. Subsequent builds reuse the layers.
-- **Webcam + HTTPS in production.** Browsers require HTTPS for `getUserMedia` outside `localhost`. The deploy story (Railway / Fly / VPS) needs a TLS terminator in front of the client; deploy task (#32) covers this.
+- **Webcam + HTTPS in production.** Browsers require HTTPS for `getUserMedia` outside `localhost`. Both deploy targets (Vercel for the client, Render for the inference service) terminate TLS automatically; for self-hosted alternatives (Fly / VPS / Railway) you'd need to add a TLS terminator in front of the client. Deploy task `#32` is shipped — see `OWNER-ACTIONS.md` for the live URLs and config.
 - **Telemetry is off.** No analytics, no Next telemetry, no third-party calls. Privacy posture is load-bearing on a biometric system.

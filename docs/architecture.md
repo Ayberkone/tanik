@@ -190,7 +190,7 @@ Iris (lower=better)                Fingerprint (higher=better)
 
 Fusion is a weighted sum, with weights renormalised over the modalities the request actually supplied — so a single-modality unified call cleanly equals that modality's normalised score (no halving by the absent modality's weight).
 
-**The honesty caveat:** today's weights and ceilings are *placeholders*, not tuned. The unified verify response carries `calibration_status: "placeholder"` as an in-band signal so a downstream system that promises measured FAR/FRR refuses to act on a placeholder. Real calibration ships in Phase 3 #43 once we have the ND-IRIS-0405 dataset (#11) + an FVC-style fingerprint set.
+**The honesty caveat:** today's weights and ceilings are *placeholders*, not tuned. The unified verify response carries `calibration_status: "placeholder"` as an in-band signal so a downstream system that promises measured FAR/FRR refuses to act on a placeholder. Real calibration ships in Phase 3 #43 once we have an iris evaluation dataset (PolyU Cross-Spectral primary, ND-IRIS-0405 honest-ask parallel — `#11`) + an FVC-style fingerprint set.
 
 ## 9. The honesty discipline (and why it's the credibility argument)
 
@@ -315,7 +315,9 @@ docs/
 ├── development.md                   how to run locally
 ├── datasets.md                      every dataset used (source + license)
 ├── glossary.md                      biometrics vocabulary reference
-├── nd-iris-0405-access.md           how to obtain the Phase 3 iris dataset ★ Phase 3
+├── polyu-iris-access.md             primary Phase 3 iris-dataset access guide ★ Phase 3
+├── nd-iris-0405-access.md           ND-IRIS-0405 access — institutional-wall documented; honest-ask in flight
+├── casia-iris-access.md             CASIA-Iris fallback access guide
 ├── fusion.md                        fusion methodology + placeholder calibration ★ Phase 3
 ├── performance.md                   skeleton — auto-written by Phase 3 #43
 ├── threat-model.md                  Phase 4 prep — working draft

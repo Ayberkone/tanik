@@ -99,7 +99,7 @@ Fusion itself is a weighted sum, with weights renormalised over the modalities t
 
 If you've read this far, you might be wondering: *"What FAR and FRR does this fused system achieve?"*
 
-Right now: I don't know. I don't have the held-out test set yet — I'm waiting on a license for ND-IRIS-0405 and an FVC-style fingerprint dataset.
+Right now: I don't know. I don't have the held-out test set yet — I'm waiting on access to a research-grade iris dataset (PolyU Cross-Spectral Iris is the primary path; ND-IRIS-0405 is an honest-ask in parallel) plus an FVC-style fingerprint dataset.
 
 So the API responds honestly. Every unified-verify response carries:
 
