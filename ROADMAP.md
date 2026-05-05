@@ -203,8 +203,8 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 **Phase:** 3 — first endpoint (`#41`) shipped, backend CI green, **deployed publicly**. Remaining Phase 3 work (`#42`, `#43`) is dataset-gated. Phase 2 closed and CI-verified green; **Phase 1 deploy now LIVE**, DoD walkthrough (`#33`) in flight via local-first dev.
 
-**Last commit:** `7034aac` fix(client): camera no longer resets on every keystroke + clearer timeouts
-**Branch:** `main`, in sync with `origin/main`. Backend CI green on `cc48ace` (latest commit touching backend code).
+**Last commit:** `10a76ea` docs: post-deploy + PolyU-pivot consistency pass across CHANGELOG, README, datasets, performance, OWNER-ACTIONS
+**Branch:** `main`, 2 commits ahead of `origin/main` (the prior handoff `64f15d6` + the consistency-pass `10a76ea`; both safe to push). Backend CI green on `cc48ace` (latest commit touching backend code).
 
 **Live deployment:**
 - Client (Vercel): <https://tanik.vercel.app>
