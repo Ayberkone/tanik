@@ -37,35 +37,32 @@ The previous framing assumed ND-IRIS-0405 was the target. Two discoveries on 202
 - **Estimated effort.** Hours of research + correspondence.
 - **Related files.** `BACKLOG.md` ("Fingerprint dataset gap for Phase 3 — same-finger pairs"), `docs/datasets.md`.
 
-### 3. `#32` Deploy TANIK to a public URL — **DEPLOYED 2026-04-26**
-
-Live URLs:
-- **Client (Vercel):** <https://tanik.vercel.app>
-- **Inference (Render):** <https://tanik.onrender.com> (health: `/api/v1/health`)
-
-Required configuration (already in place):
-
-| Service | Env var | Value | Why |
-|---|---|---|---|
-| Render | `TANIK_CORS_ALLOW_ORIGINS` | `https://tanik.vercel.app` (no trailing slash) | Browser CORS — without this, the client cannot call the API |
-| Vercel | `NEXT_PUBLIC_API_BASE_URL` | `https://tanik.onrender.com` | Baked into the client bundle at build time so the browser knows where the API lives |
-| Vercel | Root Directory | `apps/client` | The Next.js app is in this subdirectory, not at the repo root |
-
-Known free-tier trade-offs:
-- **Render sleeps after 15 min of inactivity.** First request after sleep ≈ 30 s. Acceptable for a demo; would need to be paid tier for production.
-- **Render free tier filesystem is ephemeral.** SQLite at `/data/tanik.db` resets on every redeploy. Anyone who enrolled before is gone after a redeploy. Re-enrol to demo. For production: swap to Postgres.
-- **Standalone Next output requires a build env var.** `next.config.ts` reads `BUILD_STANDALONE=true` to enable `.next/standalone/`; Docker sets it, Vercel leaves it unset. (Without this gate, Vercel returned 404 NOT_FOUND on every route — fixed in commit `a1c0b0c`.)
-
-Re-deploy from `main`: both platforms have GitHub auto-deploy on the default branch.
-
-### 4. `#33` Phase 1 DoD walkthrough — enrol + verify with your own face
+### 3. `#33` Phase 1 DoD walkthrough — enrol + verify with your own face
 
 - **Why this needs you.** Literally requires your real iris in front of a webcam. Claude cannot capture biometric data.
 - **Why it's load-bearing.** It is the Phase 1 definition of done. Until walked through end-to-end in a real browser, Phase 1 is "implementation complete, DoD unverified" rather than "shipped."
-- **Smallest next step.** Open <https://tanik.vercel.app>. Status pill should be green; the amber "fusion calibration: placeholder" hint should also be visible. Click "Enroll iris," use the webcam, give yourself a display name, submit. Screenshot the success panel. Then click "Verify iris," paste the `subject_id`, capture again — the Hamming distance should be well under 0.37.
-- **Estimated effort.** Five minutes.
+- **Pivoted to local-first dev** at the end of the 2026-04-27 session. Walking through against the deployed Render free-tier was producing 30+ second cold-starts and surfacing two real bugs (camera reset on keystroke; cryptic AbortError on enroll); both shipped in `7034aac`. Local-first is faster and equally good evidence for DoD.
+- **Smallest next step (two terminals):**
 
-### 5. (Optional but valuable) Read what's been built
+  ```bash
+  # Terminal 1 — backend
+  cd /Users/ayberkbaytok/tanik && \
+    TANIK_CORS_ALLOW_ORIGINS=http://localhost:3000 \
+    /Users/ayberkbaytok/tanik/.venv/bin/uvicorn \
+    --app-dir apps/inference \
+    tanik_inference.main:app --reload --port 8000
+
+  # Terminal 2 — client
+  cd /Users/ayberkbaytok/tanik/apps/client && \
+    NEXT_PUBLIC_API_BASE_URL=http://localhost:8000 \
+    npm run dev
+  ```
+
+  Visit <http://localhost:3000>. Status pill should be green; the amber "fusion calibration: placeholder" hint should also be visible. Click **Enroll iris**, type a display name (camera should now stay live — bug fix `7034aac`), capture, submit. Screenshot the success panel. Then **Verify iris**, paste the `subject_id`, capture again — Hamming distance should be well under 0.37.
+- **Estimated effort.** Five minutes once the terminals are up.
+- **Walking through the deployed URL instead** is also fine now that the bug fixes are auto-deployed; just live with the 30 s cold-start on the first request.
+
+### 4. (Optional but valuable) Read what's been built
 
 - **Why this is here.** You said "i cannot catch up with you." The only way that catches up is reading the docs that already exist, end-to-end.
 - **Smallest next step (in order).**
@@ -82,7 +79,26 @@ Re-deploy from `main`: both platforms have GitHub auto-deploy on the default bra
 
 *(Move items here when complete. Format: `### [date completed] — title` plus a one-line note on what was done.)*
 
-*(Empty — first entry will land when you complete one of the above.)*
+### 2026-04-26 — `#32` Deployed TANIK to public URLs
+
+- **Client (Vercel):** <https://tanik.vercel.app>
+- **Inference (Render):** <https://tanik.onrender.com> (health: `/api/v1/health`)
+
+Required configuration in place:
+
+| Service | Env var | Value | Why |
+|---|---|---|---|
+| Render | `TANIK_CORS_ALLOW_ORIGINS` | `https://tanik.vercel.app` (no trailing slash) | Browser CORS — without this the client cannot call the API |
+| Vercel | `NEXT_PUBLIC_API_BASE_URL` | `https://tanik.onrender.com` | Baked into the client bundle at build time |
+| Vercel | Root Directory | `apps/client` | The Next.js app is in this subdirectory |
+| Vercel | Framework Preset | Next.js | Otherwise Vercel falls back to static-site mode and 404s |
+
+Known free-tier trade-offs:
+- Render sleeps after 15 min of inactivity. First request after sleep ≈ 30 s.
+- Render free tier filesystem is ephemeral. SQLite at `/data/tanik.db` resets on every redeploy. For production: swap to Postgres.
+- `next.config.ts` reads `BUILD_STANDALONE=true` to enable `.next/standalone/`; Docker sets it, Vercel leaves it unset. Without this gate, Vercel returned 404 NOT_FOUND on every route (fix in `a1c0b0c`).
+
+Re-deploy from `main`: both platforms have GitHub auto-deploy on the default branch.
 
 ---
 

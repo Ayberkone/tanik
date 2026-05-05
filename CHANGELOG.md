@@ -8,6 +8,16 @@ The first tagged release will land at the end of Phase 5.
 
 ## [Unreleased]
 
+### Added — Phase 1 deploy (shipped 2026-04-26)
+
+- **Public deployment**: Vercel (client) + Render (backend) ([a1c0b0c](https://github.com/Ayberkone/tanik/commit/a1c0b0c), [fa34f8b](https://github.com/Ayberkone/tanik/commit/fa34f8b), task #32). Live at <https://tanik.vercel.app> and <https://tanik.onrender.com>. Free-tier trade-offs known and documented (Render 15-minute sleep, ephemeral SQLite on the free instance).
+- **`next.config.ts` `output` gated on `BUILD_STANDALONE` env var** ([a1c0b0c](https://github.com/Ayberkone/tanik/commit/a1c0b0c)). Vercel's serverless runtime cannot route a self-hosted Next.js standalone bundle (every route 404s); Docker keeps `output: "standalone"` for the multi-stage runner image, Vercel leaves the variable unset and gets the default Vercel-routable build. Don't undo this without checking both deployment targets.
+
+### Fixed — Phase 1 deploy DoD-walkthrough bugs (shipped 2026-04-27)
+
+- **Camera no longer resets on every keystroke** ([7034aac](https://github.com/Ayberkone/tanik/commit/7034aac)). `WebcamCapture` had `onError` (and parents passed inline arrow `onCapture`) on its `useEffect` deps; React identity churn re-mounted the camera stream on every parent render. Fixed via the canonical "callback prop in a ref" pattern in both `WebcamCapture` and `IrisForm`. Comment in `WebcamCapture` documents why a single `react-hooks/set-state-in-effect` disable is load-bearing for the SSR-safe capability check.
+- **Per-operation fetch timeouts replace the 25 s blanket default** ([7034aac](https://github.com/Ayberkone/tanik/commit/7034aac), supersedes [0530499](https://github.com/Ayberkone/tanik/commit/0530499)). Render free-tier cold-start (~30 s) plus iris pipeline (~3-5 s) was busting the original 25 s default and surfacing a meaningless `signal is aborted without reason` AbortError. New shape: 15 s for `/health`, 60 s for pipeline operations; AbortError messages now explain the cold-start cause so the user has a chance of self-diagnosing.
+
 ### Added — Phase 3 (in progress)
 
 - **Unified `POST /api/v1/verify` endpoint** ([cc48ace](https://github.com/Ayberkone/tanik/commit/cc48ace), task #41). Accepts iris and/or fingerprint in a single multipart upload; returns one fused decision plus a per-modality breakdown. Backed by:
@@ -102,7 +112,7 @@ New plan (later superseded by PolyU discovery — see entry above):
 
 ---
 
-## Phase 1 — Iris backend + minimal client (shipped implementation 2026-04-25; deploy deferred)
+## Phase 1 — Iris backend + minimal client (implementation shipped 2026-04-25; deployed 2026-04-26)
 
 ### Added
 
@@ -120,8 +130,9 @@ New plan (later superseded by PolyU discovery — see entry above):
 
 ### Pending
 
-- `#32` Deploy to a public URL (Vercel client + Railway backend recommended). Paused per author decision.
-- `#33` Phase 1 DoD verification — needs the deploy URL + a 5-minute real-browser walkthrough with the author's actual face.
+- `#33` Phase 1 DoD verification — pivoted to **local-first dev** at the end of the 2026-04-27 session after the deployed cold-start surfaced two real bugs (now fixed in `7034aac`). Walkthrough resumes against `localhost:3000` + `localhost:8000`; `#33` closes once the iris flow runs end-to-end with the author's actual face.
+
+(`#32` deployed; see the "Phase 1 deploy" entries under Unreleased.)
 
 ---
 

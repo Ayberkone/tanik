@@ -33,9 +33,9 @@ Why this matters: the entire credibility pitch of TANIK is honest, NIST-style be
 
 **Distinct v2 product direction:** offer TANIK as a *pluggable iris engine harness* — three engines behind one `BiometricEngine` interface, the operator picks per-deployment. That is a real product differentiator vs. single-engine demos. Decide later; do not let it leak into v1 scope.
 
-## ND-IRIS-0405 license agreement — execution
+## ND-IRIS-0405 license agreement — superseded as primary path
 
-Adam confirmed (2026-04-25) that the dataset is requestable via the formal license agreement process at https://cvrl.nd.edu/projects/data/. This is the long-pole for Phase 3 evaluation; TANIK cannot ship measured FAR/FRR numbers without a real iris dataset. Tracked as an active SIDE task — see the task list — not as backlog.
+Adam confirmed (2026-04-25) that the dataset is requestable via the formal license agreement process at https://cvrl.nd.edu/projects/data/. Re-reading the licence on 2026-04-26 surfaced a hard institutional-signature wall (no individuals, no Gmail), so the primary path pivoted to the **PolyU Cross-Spectral Iris Database** (web-form application, no institutional gate). ND-CVRL still in play as an honest-ask parallel — email sent to `cvrl@nd.edu` (`docs/outreach/nd-iris-independent-author.md`); reply pending. If ND-CVRL surfaces an unaffiliated path it stays useful (largest NIR iris dataset); otherwise PolyU is the primary. See `docs/polyu-iris-access.md` and `docs/nd-iris-0405-access.md`.
 
 ## Fingerprint dataset gap for Phase 3 — same-finger pairs
 

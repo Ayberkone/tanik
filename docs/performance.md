@@ -2,7 +2,7 @@
 
 This document will report measured performance of the iris matcher, the fingerprint matcher, and the fused unified-verify decision against held-out test sets. **It is currently a skeleton.** Every number below reads "TBD — awaiting Phase 3 #43 evaluation run." When the harness in `tests/evaluation/` runs against real data, this file is written by the harness, not by hand. **No number in this file has ever been hand-typed by a human or by Claude** — that would violate the honesty discipline (CLAUDE.md, README §"Honest metrics").
 
-> **Status:** skeleton. Will be populated by `tests/evaluation/run_evaluation.py` (`#43`) once `#11` (ND-IRIS-0405) and the FVC-style fingerprint dataset land.
+> **Status:** skeleton. Will be populated by `tests/evaluation/run_evaluation.py` (`#43`) once `#11` (PolyU Cross-Spectral Iris — primary; ND-CVRL parallel honest-ask) and the FVC-style fingerprint dataset land.
 
 ---
 
@@ -10,8 +10,8 @@ This document will report measured performance of the iris matcher, the fingerpr
 
 | Set | Modality | Source | Composition | License |
 |---|---|---|---|---|
-| Iris evaluation set | Iris | ND-IRIS-0405 (held-out split) | TBD subjects, TBD images, TBD same-eye pairs, TBD different-eye pairs | ND CVRL license, see `docs/nd-iris-0405-access.md` |
-| Iris calibration set | Iris | ND-IRIS-0405 (separate split — non-overlapping with evaluation) | TBD | Same |
+| Iris evaluation set | Iris | PolyU Cross-Spectral Iris (held-out split) — primary; ND-IRIS-0405 if ND-CVRL surfaces a path for unaffiliated authors | TBD subjects, TBD images, TBD same-eye pairs, TBD different-eye pairs | PolyU non-commercial research licence, see `docs/polyu-iris-access.md` |
+| Iris calibration set | Iris | Same source as evaluation set, separate split — non-overlapping | TBD | Same |
 | Fingerprint evaluation set | Fingerprint | FVC-style same-finger-pairs dataset (TBD which) | TBD subjects, TBD impressions per finger, TBD same-finger pairs, TBD different-finger pairs | TBD |
 | Fingerprint calibration set | Fingerprint | Same source, separate split | TBD | TBD |
 | Fused evaluation set | Both | Pairs constructed from the per-modality sets, same person across modalities | TBD pairs | n/a |

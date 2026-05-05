@@ -76,7 +76,7 @@ The fusion weights (iris vs fingerprint) will not be pulled from the air. They w
 
 ## Datasets
 
-Currently in use: **MMU Iris Database** (Phase 0 spike notebook), Worldcoin's public iris demo set (downloaded as backend test fixtures), and **NIST MINEX III** validation imagery (Phase 2 fingerprint test fixtures, U.S. public domain). Source, license, and access notes for every dataset are in `docs/datasets.md`. No proprietary or private biometric data is included in the repo, ever — `notebooks/data/` and the test fixture cache are gitignored. ND-IRIS-0405 access is in progress for Phase 3 iris evaluation; an FVC-style fingerprint set with multiple impressions per finger is the parallel Phase 3 dependency on the fingerprint side.
+Currently in use: **MMU Iris Database** (Phase 0 spike notebook), Worldcoin's public iris demo set (downloaded as backend test fixtures), and **NIST MINEX III** validation imagery (Phase 2 fingerprint test fixtures, U.S. public domain). Source, license, and access notes for every dataset are in `docs/datasets.md`. No proprietary or private biometric data is included in the repo, ever — `notebooks/data/` and the test fixture cache are gitignored. The **PolyU Cross-Spectral Iris Database** (Hong Kong PolyU, web-form access, NIR + visible paired) is the primary Phase 3 iris evaluation dataset — application sent, awaiting reply; ND-CVRL honest-ask sent in parallel. An FVC-style fingerprint set with multiple impressions per finger is the parallel Phase 3 dependency on the fingerprint side.
 
 ## Quickstart
 
@@ -146,7 +146,8 @@ This is primarily a personal demonstration project, but thoughtful issues and pu
 
 - [Worldcoin `open-iris`](https://github.com/worldcoin/open-iris) — iris segmentation, normalization, and matching pipeline.
 - [SourceAFIS](https://sourceafis.machinezoo.com/) — fingerprint matching (Phase 2 onward).
-- [University of Notre Dame CVRL](https://cvrl.nd.edu/) — ND-IRIS-0405 dataset (Phase 3 evaluation; access in progress).
+- [PolyU Biometric Research Centre (Ajay Kumar)](http://www4.comp.polyu.edu.hk/~csajaykr/) — PolyU Cross-Spectral Iris Database (primary Phase 3 evaluation dataset; access in progress).
+- [University of Notre Dame CVRL](https://cvrl.nd.edu/) — ND-IRIS-0405 considered; institutional-signature wall makes it impractical for unaffiliated authors. Honest-ask reply pending.
 - [Multimedia University, Malaysia](http://pesona.mmu.edu.my/) — MMU Iris Database (Phase 0 / test fixtures).
 - The biometrics research community, whose published FAR/FRR methodologies this project follows.
 

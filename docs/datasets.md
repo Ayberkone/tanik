@@ -2,7 +2,7 @@
 
 Every biometric dataset referenced anywhere in this repo, with its source, license, and access conditions. Biometric data is personal data; the provenance matters.
 
-**This document grows as datasets are added.** The Phase 3 evaluation work formalises the dataset list once `#11` (ND-IRIS-0405) and the FVC-style fingerprint set land — that's when FAR/FRR measurement starts depending on a documented composition.
+**This document grows as datasets are added.** The Phase 3 evaluation work formalises the dataset list once `#11` (PolyU Cross-Spectral Iris — primary; ND-CVRL parallel honest-ask) and the FVC-style fingerprint set land — that's when FAR/FRR measurement starts depending on a documented composition.
 
 ## Principle
 
@@ -23,23 +23,32 @@ Every biometric dataset referenced anywhere in this repo, with its source, licen
 
 ## Planned (access in progress)
 
-### ND-IRIS-0405 (University of Notre Dame)
+### PolyU Cross-Spectral Iris Database (Hong Kong PolyU — primary)
+
+- **Composition:** 12,540 iris images from 209 subjects, **NIR + visible captured simultaneously** (paired cross-spectral). Hosted by Prof. Ajay Kumar at the PolyU Biometric Research Centre.
+- **Status:** Application submitted via the public web form 2026-04-26; reply pending. Access guide: `docs/polyu-iris-access.md`. Outreach text: `docs/outreach/polyu-iris-request.md`.
+- **Purpose:** Phase 3 FAR/FRR evaluation (`#11` → `#43`). Solo-author-friendly (web-form application, no institutional gate); paired NIR+visible opens a follow-up cross-spectral evaluation path.
+- **Delivery:** Direct link from PolyU after approval.
+- **Storage:** outside the repo (suggested `~/datasets/polyu-cross-spectral/`); never committed.
+- **License terms:** non-commercial research only; no redistribution; cite Ramaiah & Kumar 2017 in any publication using the dataset.
+
+### ND-IRIS-0405 (University of Notre Dame — superseded as primary)
 
 - **Composition:** 64,980 NIR iris images from 356 subjects (712 unique irises), captured at the University of Notre Dame between January 2004 and May 2005.
-- **Status:** License-execution in progress. Adam Czajka (ND CVRL) confirmed the formal access path 2026-04-25; license agreement at <https://cvrl.nd.edu/media/django-summernote/2018-09-19/397132ea-96bd-4f41-b796-7ffd63021e41.pdf>. Step-by-step author-side guide at `docs/nd-iris-0405-access.md`. Outreach in `docs/outreach/nd-iris-request.md`.
-- **Purpose:** Phase 3 FAR/FRR evaluation (`#11` → `#43`). Larger scale and better-documented subject splits than MMU.
+- **Status:** Re-reading the licence on 2026-04-26 surfaced a hard institutional-signature wall (no individuals, no Gmail) — not navigable for unaffiliated solo authors. Honest-ask email sent in parallel to `cvrl@nd.edu` (`docs/outreach/nd-iris-independent-author.md`); reply pending. License agreement (for reference): <https://cvrl.nd.edu/media/django-summernote/2018-09-19/397132ea-96bd-4f41-b796-7ffd63021e41.pdf>. Step-by-step author-side guide at `docs/nd-iris-0405-access.md`. Earlier outreach in `docs/outreach/nd-iris-request.md`.
+- **Purpose if access opens:** larger scale than PolyU; would be added as a parallel evaluation set, not a replacement.
 - **Delivery:** Globus transfer after ND-CVRL approval.
 - **Storage:** outside the repo (suggested `~/datasets/nd-iris-0405/`); never committed.
 - **Citation requirement:** publications and public reports using this dataset must cite the paper named in the license agreement.
 
-### CASIA-Iris (Institute of Automation, Chinese Academy of Sciences)
+### CASIA-Iris (Institute of Automation, Chinese Academy of Sciences) — fallback
 
-- **Status:** Not yet requested. Required for Phase 3 if ND-IRIS is not granted.
+- **Status:** Not yet requested. Site (`biometrics.idealtest.org`) intermittently unreachable from multiple networks during 2026-04-26 testing. Outreach draft ready (`docs/outreach/casia-iris-request.md`); send if/when site becomes reachable and PolyU has not delivered.
 - **Access:** Formal request via CASIA's biometrics group.
 
-### UBIRIS.v2 (University of Beira Interior)
+### UBIRIS.v2 (University of Beira Interior) — fallback
 
-- **Status:** Noted as backup. Non-cooperative / visible-light captures; complements ND-IRIS/CASIA if cross-condition testing is added.
+- **Status:** Noted as a no-gate backup. Non-cooperative / visible-light captures; complements PolyU's NIR+visible if cross-condition testing is added. Only pursue if PolyU and ND-CVRL both refuse.
 
 ## Excluded
 

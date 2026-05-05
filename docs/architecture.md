@@ -227,7 +227,7 @@ The full document arrives as `docs/threat-model.md` in Phase 4. Until then, do n
 | Phase | DoD met? | Notes |
 |---|---|---|
 | **0 — Iris spike notebook** | ✅ | `notebooks/00_iris_spike.ipynb` runs the full open-iris pipeline on sample data |
-| **1 — Iris backend + minimal client** | ✅ implementation; ⏳ deploy | Code shipped; deploy (`#32`) and DoD walkthrough (`#33`) deferred per author |
+| **1 — Iris backend + minimal client** | ✅ implementation + ✅ deploy; ⏳ DoD walkthrough | Deployed 2026-04-26 to <https://tanik.vercel.app> + <https://tanik.onrender.com>. `#33` real-face walkthrough in flight via local-first dev |
 | **2 — Fingerprint modality** | ✅ | SourceAFIS via JPype; `BiometricEngine` interface; client UI; backend CI green |
 | **3 — Fusion, thresholds, honest metrics** | ⏳ in progress | `#41` shipped (this session); `#42` + `#43` blocked on dataset acquisition (`#11`) |
 | **4 — Liveness + admin** | ⏳ | Out of scope until Phase 3 closes |
