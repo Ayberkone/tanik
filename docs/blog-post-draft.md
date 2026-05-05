@@ -49,7 +49,7 @@ If the project's whole pitch is *"this is what a serious biometric system looks 
 
 ## The HTTP contract is the boundary
 
-Every interaction between client and inference goes through `docs/api-contract.md`. Five endpoints today:
+Every interaction between client and inference goes through `docs/api-contract.md`. Six endpoints today:
 
 - `GET /api/v1/health`
 - `POST /api/v1/iris/{enroll,verify}` — Phase 1
@@ -175,7 +175,7 @@ Illegal transitions throw in dev (and log in production — kiosk uptime trumps 
 Five phases on the roadmap. As of writing:
 
 - **Phase 0** ✅ — iris pipeline spike notebook
-- **Phase 1** ✅ implementation, ⏳ deploy — iris enroll/verify end-to-end
+- **Phase 1** ✅ implementation + ✅ deploy — iris enroll/verify end-to-end, live at <https://tanik.vercel.app> + <https://tanik.onrender.com>
 - **Phase 2** ✅ — fingerprint via SourceAFIS, modality-agnostic interface
 - **Phase 3** ⏳ — unified verify shipped with placeholder calibration; measured numbers blocked on dataset acquisition
 - **Phase 4** — liveness (PAD) + admin dashboard

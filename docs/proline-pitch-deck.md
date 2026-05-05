@@ -94,7 +94,7 @@ Speaker notes:
 
 ## The HTTP contract is the boundary
 
-Five endpoints under `/api/v1`:
+Six endpoints under `/api/v1`:
 
 - `GET /health`
 - `POST /iris/{enroll, verify}` — Phase 1
@@ -334,7 +334,7 @@ Speaker notes:
 | Phase | Status |
 |---|---|
 | 0 — Iris spike notebook | ✅ |
-| 1 — Iris backend + minimal client | ✅ implementation; ⏳ deploy |
+| 1 — Iris backend + minimal client | ✅ implementation + ✅ deploy (live at tanik.vercel.app + tanik.onrender.com); ⏳ DoD walkthrough |
 | 2 — Fingerprint modality | ✅ |
 | 3 — Fusion, thresholds, honest metrics | ✅ #41 endpoint; ⏳ #42, #43 dataset-blocked |
 | 4 — Liveness (PAD) + admin | ⏳ |
