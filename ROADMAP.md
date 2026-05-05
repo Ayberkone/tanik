@@ -203,8 +203,8 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 **Phase:** 3 — first endpoint (`#41`) shipped, backend CI green, **deployed publicly**. Remaining Phase 3 work (`#42`, `#43`) is dataset-gated. Phase 2 closed and CI-verified green; **Phase 1 deploy now LIVE**, DoD walkthrough (`#33`) in flight via local-first dev.
 
-**Last commit:** `10a76ea` docs: post-deploy + PolyU-pivot consistency pass across CHANGELOG, README, datasets, performance, OWNER-ACTIONS
-**Branch:** `main`, 2 commits ahead of `origin/main` (the prior handoff `64f15d6` + the consistency-pass `10a76ea`; both safe to push). Backend CI green on `cc48ace` (latest commit touching backend code).
+**Last commit:** `bec8404` docs: deeper consistency pass — architecture file map, dev test counts, blog/pitch dataset language
+**Branch:** `main`, 6 commits ahead of `origin/main` (the prior handoff plus a five-pass code/doc consistency audit run while the user was away — see commits `10a76ea`, `d2f6849`, `3d32aa2`, `2f14288`, `bec8404`; all docs-only, all safe to push). Backend CI green on `cc48ace` (latest commit touching backend code).
 
 **Live deployment:**
 - Client (Vercel): <https://tanik.vercel.app>
