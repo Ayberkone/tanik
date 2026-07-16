@@ -126,6 +126,7 @@ tanik/
 │   └── README.md
 ├── tests/                   # repo-wide test harness — backend tests live in apps/inference/tests/
 ├── .claude/                 # agents, skills, hooks, commands for Claude Code
+├── autobuild.sh            # unattended headless-Claude build loop (see docs/development.md)
 ├── docker-compose.yml
 ├── ROADMAP.md
 ├── BACKLOG.md

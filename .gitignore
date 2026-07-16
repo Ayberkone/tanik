@@ -10,3 +10,7 @@ notebooks/data/
 apps/inference/tests/fixtures/_cache/
 .claude/session-state.md
 .claude/settings.local.json
+
+# autobuild runtime artifacts
+.autobuild.log
+.stop-build

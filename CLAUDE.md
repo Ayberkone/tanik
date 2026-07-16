@@ -124,6 +124,10 @@ What persists for free across sessions: `CLAUDE.md`, `ROADMAP.md`, `BACKLOG.md`,
 
 See `.claude/skills/handoff/SKILL.md` and `.claude/skills/load/SKILL.md` for what each step does.
 
+### Unattended build loop
+
+`autobuild.sh` (repo root) automates the `/clear` + resume cadence: each iteration runs `claude -p` headless with zero prior context, loads the on-disk handoff, and ships the next unit of work — capped by `MAX_ITERS`, stoppable with `touch .stop-build`. It runs with `--dangerously-skip-permissions`, so the phase-gate discipline above is the only guardrail — the default prompt encodes it (no pulling work forward from a later phase; docs/test-hardening pass when the current phase is blocked; no commit when there's nothing safe to ship). If you are that headless iteration, honor those rules exactly. Full usage + safety notes: `docs/development.md` → "Unattended build loop".
+
 ---
 
 ## What NOT to do without explicit confirmation

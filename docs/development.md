@@ -128,6 +128,28 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8000 npm run dev
 
 The Phase 0 spike notebook (`notebooks/00_iris_spike.ipynb`) runs against the same `.venv` as the backend. See `notebooks/README.md` for setup.
 
+## Unattended build loop (`autobuild.sh`)
+
+`autobuild.sh` (repo root) runs the `/clear` + resume cadence automatically: each iteration launches `claude -p` in headless mode with **zero** prior context, feeds it the on-disk handoff (`ROADMAP.md` "Current status" + `.claude/session-state.md` + `BACKLOG.md`), and lets it ship the next unit of work end-to-end before the next iteration starts from a clean slate. Ported from the author's `sahibinden` project.
+
+```bash
+./autobuild.sh 10            # ship at most 10 iterations, then stop
+MAX_ITERS=10 ./autobuild.sh  # same, env-var form
+./autobuild.sh               # loop until you `touch .stop-build`
+```
+
+**Knobs** (all env vars): `MAX_ITERS` (0 = unlimited), `PROMPT` (override the resume instruction), `SLEEP_SECS` (breather after a productive iteration), `MAX_NOOP` (stop after N idle iterations in a row, default 5), `MAX_BACKOFF_SECS` (cap on exponential no-op backoff).
+
+**Stopping:** `touch .stop-build` ends the loop cleanly after the current iteration. Ctrl-C works too but may interrupt mid-feature.
+
+**Safety, read before running unattended:**
+- It runs with `--dangerously-skip-permissions` — **no human approval gate.** TANIK's standing rules still bind it (they live in `CLAUDE.md`, and `.claude/hooks/pre-tool-safety.sh` still fires regardless of permission mode), but only run this on a branch you're happy to let it drive.
+- The default prompt bakes in the **phase-gate discipline**: it never pulls work forward from a later phase, does a docs/test-hardening pass when the current phase is blocked (e.g. awaiting datasets), and commits nothing if there's nothing safe to ship. That last clause is deliberate — a "nothing to do" iteration registers as a no-op, so the loop backs off and stops rather than manufacturing filler.
+- Progress is detected by HEAD moving. Consecutive no-ops (including spurious spend-limit messages and transient 503s) back off exponentially and stop after `MAX_NOOP`, surfacing a real block to you in minutes instead of spinning for hours.
+- Runtime artifacts `.autobuild.log` (full transcript) and `.stop-build` are gitignored.
+
+**First run:** watch iteration 1 live to confirm the resume prompt lands on a sane next task. If it starts inventing scope, tighten `PROMPT=` for that run.
+
 ## Known foot-guns
 
 - **`~/.npm` permission errors.** If `npm install` complains about EACCES on `~/.npm/_cacache`, the cache has root-owned files from a previous sudo install. Fix once with: `sudo chown -R $(whoami) ~/.npm`. Or work around per-command with `NPM_CONFIG_CACHE=/tmp/npm-cache-tanik npm install`.
