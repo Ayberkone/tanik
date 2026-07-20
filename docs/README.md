@@ -23,7 +23,7 @@ For the project as a whole, start with the root [`README.md`](../README.md), the
 | [`fusion.md`](fusion.md) | Score-normalisation + weighted-sum fusion methodology + the explicit calibration-placeholder caveat |
 | [`performance.md`](performance.md) | **Skeleton** for FAR/FRR/ROC reporting; every cell is `TBD`; will be machine-written by `tests/evaluation/` (`#43`) once dataset acquisition (`#11`) lands |
 | [`polyu-iris-access.md`](polyu-iris-access.md) | **Primary** Phase 3 iris-dataset access guide — PolyU Cross-Spectral; web-form application; comparison table of all five candidate iris datasets considered |
-| [`nd-iris-0405-access.md`](nd-iris-0405-access.md) | Phase 3 iris-dataset access guide — ND-IRIS-0405; institutional-signature wall documented; honest-ask sent in parallel |
+| [`nd-iris-0405-access.md`](nd-iris-0405-access.md) | Phase 3 iris-dataset access guide — ND-IRIS-0405; **refused 2026-07-17**; preserved as reference if an institutional sponsor appears |
 | [`casia-iris-access.md`](casia-iris-access.md) | Phase 3 iris-dataset access guide — CASIA-Iris; fallback path; site intermittently unreachable so kept ready, not active |
 | [`datasets.md`](datasets.md) | Every dataset referenced in the repo with source + license + access path |
 

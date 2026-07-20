@@ -216,7 +216,7 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 **Phase 3 progress:**
 - ✅ `#41` Score normalisation + unified `POST /api/v1/verify`. Piecewise-linear normalisation anchored at the per-modality threshold (engine-native threshold → normalised 0.5), weighted-sum fusion with weights renormalised over the modalities present in the request. New endpoint accepts iris-only, fingerprint-only, or both; returns fused decision plus per-modality breakdown plus an in-band `calibration_status: "placeholder"` honesty signal. New `docs/fusion.md` documents the methodology, the reference (Ross & Jain 2003), and the explicit caveat that weights are placeholder until #43 ships measured numbers. `docs/api-contract.md` updated with the new endpoint definition. New tests: `test_fusion.py` (18 unit tests on the pure normalisation/fusion math) and `test_unified_verify.py` (9 integration tests; skip-guarded on JPype/JVM availability like the existing fingerprint suite). Backend CI green on `cc48ace` — 39 + 22 tests all pass on CI's JVM-equipped runner.
 - ⏳ `#42` Threshold-slider UI on a debug page — **dataset-gated** (DoD: "trades off FAR vs FRR live on the test set"). The UI scaffolding could be built ahead of the dataset, but the DoD cannot be demonstrated until `#43` produces a test set. Decision pending whether to (a) ship UI scaffolding + a DoD-deferred caveat, or (b) wait for the dataset.
-- ⏳ `#43` `tests/evaluation/` FAR/FRR/ROC harness — hard-blocked on dataset acquisition (`#11` PolyU Cross-Spectral primary, ND-IRIS-0405 honest-ask parallel; plus FVC-style same-finger pairs on the fingerprint side).
+- ⏳ `#43` `tests/evaluation/` FAR/FRR/ROC harness — hard-blocked on dataset acquisition (`#11` PolyU Cross-Spectral primary but stalled ~3mo; ND-IRIS-0405 refused 2026-07-17; CASIA-Iris-V4 activated as parallel NIR fallback; plus FVC-style same-finger pairs on the fingerprint side).
 
 **Phase 2 implementation (7 of 7 tasks complete):**
 - ✅ SourceAFIS Python binding picked + vendored: JPype1 1.7.0 + sourceafis-java 3.18.1 (Apache 2.0, Maven Central, 181 KB JAR vendored at `apps/inference/tanik_inference/vendor/`). In-process JVM via JPype, mirrors `iris_engine`'s threadpool-offloaded shape (`#34`).
@@ -233,9 +233,9 @@ None of the items in this section are bad ideas. All of them are v2. They do not
 
 **Open user-action items (SIDE) — all in flight, no blockers from Claude:**
 - `#11` Iris evaluation dataset acquisition.
-  - **PolyU Cross-Spectral application sent** (web form, primary path; expected reply within days). Replaces ND-IRIS-0405 as the primary plan because PolyU's web-form gate is solo-dev-friendly while ND-IRIS-0405's institutional-signature wall is hard for an unaffiliated author.
-  - **ND-CVRL honest-ask email sent** to `cvrl@nd.edu` (parallel; expected answer "no path for unaffiliated authors" → costs nothing to ask).
-  - CASIA / IIT Delhi / UBIRIS as fallbacks if PolyU refuses (extremely unlikely).
+  - **PolyU Cross-Spectral (primary) — STALLED.** Application sent 2026-04-26 (web form; "reply within days"). As of 2026-07-20 it is ~3 months silent — a de-facto stall. Follow-up email drafted (`docs/outreach/polyu-iris-request.md` → "Follow-up") for the owner to send to `ajay.kumar@polyu.edu.hk`.
+  - **ND-CVRL honest-ask — REFUSED 2026-07-17.** Replied declining access (compliance office + General Counsel; no path for unaffiliated authors). Anticipated outcome; door closed. See `docs/nd-iris-0405-access.md`.
+  - **CASIA-Iris-V4 (NIR) — now activated in parallel** given the PolyU stall. Draft ready at `docs/outreach/casia-iris-request.md`; portal `biometrics.idealtest.org` was 503 on 2026-07-20 (CBSR host `cbsr.ia.ac.cn` was 200) — retry from the owner's network. IIT Delhi (NIR) / UBIRIS.v2 (visible-only, weaker fit for NIR-tuned open-iris) remain further fallbacks.
 
 **In flight:** Phase 1 `#33` walkthrough — user pivoted to local-first dev at the very end of the session. Two terminals queued (uvicorn + npm run dev with the appropriate env vars). The two bug fixes that were blocking the flow shipped in commits `0530499` and `7034aac`.
 

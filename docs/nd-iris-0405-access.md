@@ -1,6 +1,8 @@
 # ND-IRIS-0405 access — step-by-step
 
-> **Status update (2026-04-26):** ND-CVRL's license terms are explicit that signatures must come from an individual *authorised to make legal commitments on behalf of an organisation* — students, postdocs, and non-delegated faculty are excluded. **For an unaffiliated independent author this is a hard wall.** The honest-ask draft in `docs/outreach/nd-iris-independent-author.md` puts the question to ND-CVRL plainly. Pending their response, **the primary Phase 3 iris-dataset path is CASIA-Iris-V4** — see `docs/casia-iris-access.md`. This document is preserved as the reference for the ND-IRIS-0405 process *if* an institutional sponsor materialises (Proline R&D, a Turkish university research group, etc.).
+> **REFUSED (2026-07-17):** ND-CVRL replied to the honest-ask email declining access — per their compliance office and Office of General Counsel, they will not share the dataset with an unaffiliated author. **This door is now definitively closed.** It was the anticipated outcome (the 2026-04-26 license read had already flagged the institutional-signature wall), and it does **not** affect the critical path: PolyU Cross-Spectral is the primary plan, with CASIA-Iris-V4 as the active NIR fallback (`docs/casia-iris-access.md`). This document is preserved only as the reference for the ND-IRIS-0405 process *if* an institutional sponsor (Proline R&D, a Turkish university research group) ever materialises and reopens the path.
+>
+> _History: the original 2026-04-26 status noted the license requires a signatory "authorised to make legal commitments on behalf of an organisation" — a hard wall for a solo author. The honest-ask in `docs/outreach/nd-iris-independent-author.md` put the question plainly; the refusal above is the answer._
 
 What you would need to do, in order, to obtain the ND-IRIS-0405 dataset (the original Phase 3 iris-evaluation prerequisite — task `#11` in the active task list).
 

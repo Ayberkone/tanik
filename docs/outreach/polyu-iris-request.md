@@ -62,3 +62,39 @@ When the email arrives:
 The likely questions are: clarification on what "TANIK" is (point at the README), confirmation of non-commercial use (yes), confirmation that data won't be redistributed (yes), or a request for citation language (use the Ramaiah & Kumar 2017 form he specifies in the response).
 
 A short, clear reply that confirms the three constraints (non-commercial, no redistribution, will cite) is what's wanted. Don't oversell the project; he sees research applications regularly and prefers brevity.
+
+---
+
+## Follow-up email (drafted 2026-07-20)
+
+The web-form application was submitted 2026-04-26 and has had no response in ~3 months. This is a polite one-paragraph nudge — send it to **`ajay.kumar@polyu.edu.hk`** from `ayberk.baytok@gmail.com`. Keep it short; a chaser that re-explains the whole project reads as noise. If a form reference number or confirmation email exists from April, quote it in place of the bracketed note.
+
+**Subject:** `Follow-up: PolyU Cross-Spectral Iris Database access request (April 2026)`
+
+```
+Dear Prof. Kumar,
+
+In late April 2026 I submitted a request through the PolyU Cross-Spectral
+Iris Database web form to use the database for the iris-evaluation component
+of TANIK, an MIT-licensed open-source biometric reference project
+(https://github.com/Ayberkone/tanik). I have not yet received download
+instructions, so I wanted to check politely whether the request came through
+and whether anything further is needed from my side.
+
+To restate the essentials briefly: use is strictly non-commercial and
+research/educational; the original images will not be redistributed (they
+stay in a local gitignored cache — only computed FAR/FRR/EER metrics are
+published); and the Ramaiah & Kumar (2017) paper will be cited in the
+project's datasets and performance documentation. I am happy to re-send the
+application or provide any additional detail you need.
+
+Thank you for your time, and for making the database available to the
+research community.
+
+Best regards,
+Ayberk Baytok
+ayberk.baytok@gmail.com
+Independent open-source researcher, Türkiye
+```
+
+If this nudge also goes unanswered within ~2 weeks, treat PolyU as effectively closed and let the CASIA-Iris-V4 path (`docs/casia-iris-access.md`) become the primary rather than the parallel.

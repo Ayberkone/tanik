@@ -190,7 +190,7 @@ Iris (lower=better)                Fingerprint (higher=better)
 
 Fusion is a weighted sum, with weights renormalised over the modalities the request actually supplied — so a single-modality unified call cleanly equals that modality's normalised score (no halving by the absent modality's weight).
 
-**The honesty caveat:** today's weights and ceilings are *placeholders*, not tuned. The unified verify response carries `calibration_status: "placeholder"` as an in-band signal so a downstream system that promises measured FAR/FRR refuses to act on a placeholder. Real calibration ships in Phase 3 #43 once we have an iris evaluation dataset (PolyU Cross-Spectral primary, ND-IRIS-0405 honest-ask parallel — `#11`) + an FVC-style fingerprint set.
+**The honesty caveat:** today's weights and ceilings are *placeholders*, not tuned. The unified verify response carries `calibration_status: "placeholder"` as an in-band signal so a downstream system that promises measured FAR/FRR refuses to act on a placeholder. Real calibration ships in Phase 3 #43 once we have an iris evaluation dataset (PolyU Cross-Spectral primary, CASIA-Iris-V4 parallel fallback — `#11`) + an FVC-style fingerprint set.
 
 ## 9. The honesty discipline (and why it's the credibility argument)
 

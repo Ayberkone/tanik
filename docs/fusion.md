@@ -2,7 +2,7 @@
 
 This document describes how TANIK turns iris and fingerprint scores into a single fused decision in the unified `POST /api/v1/verify` endpoint.
 
-> **Honesty notice — placeholder calibration.** The weights and normalisation knobs documented here are *not* tuned. They are honest defaults chosen so the system runs end-to-end. Real calibration is gated on Phase 3 dataset acquisition (PolyU Cross-Spectral Iris primary, ND-IRIS-0405 honest-ask parallel; FVC-style same-finger pairs for fingerprint — see `docs/datasets.md` and `BACKLOG.md`) and will land with the evaluation harness in Phase 3 task #43. Until then, every unified-verify response carries `calibration_status: "placeholder"`. A consumer that needs measured FAR/FRR must refuse a placeholder response.
+> **Honesty notice — placeholder calibration.** The weights and normalisation knobs documented here are *not* tuned. They are honest defaults chosen so the system runs end-to-end. Real calibration is gated on Phase 3 dataset acquisition (PolyU Cross-Spectral Iris primary, CASIA-Iris-V4 parallel NIR fallback; FVC-style same-finger pairs for fingerprint — see `docs/datasets.md` and `BACKLOG.md`) and will land with the evaluation harness in Phase 3 task #43. Until then, every unified-verify response carries `calibration_status: "placeholder"`. A consumer that needs measured FAR/FRR must refuse a placeholder response.
 
 ---
 

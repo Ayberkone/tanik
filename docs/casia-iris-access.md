@@ -1,8 +1,10 @@
 # CASIA Iris access — what to do, step by step
 
-How to request access to a CASIA iris database — the Phase 3 fallback if ND-IRIS-0405's institutional-signature wall blocks the independent-author path.
+How to request access to a CASIA iris database — the Phase 3 NIR fallback. **Activated as a parallel path on 2026-07-20** after ND-IRIS-0405 was refused (2026-07-17) and PolyU stalled (~3 months silent). No longer "only if the primary refuses" — send it alongside the PolyU follow-up.
 
-> **Important caveat.** CASIA's website (`biometrics.idealtest.org`) was unreachable from the network this guide was prepared from. **The exact submission URL, email address, and current form filename below need to be verified by you when you visit the actual site.** This guide captures what is well-known about CASIA's general process; the specific contact details have changed over the years and the authoritative source is the live website, not this document.
+> **Reachability check (2026-07-20).** `biometrics.idealtest.org` returned **HTTP 503** (server reachable but service erroring), while the CBSR host `cbsr.ia.ac.cn` returned **HTTP 200**. So the portal is flaky rather than dead — retry `biometrics.idealtest.org` from your own network over a few days; it has historically come back up. Note the 503 could also be geo/network-specific to the machine this check ran from.
+>
+> **Important caveat.** **The exact submission URL, email address, and current form filename below need to be verified by you when you visit the actual site.** This guide captures what is well-known about CASIA's general process; the specific contact details have changed over the years and the authoritative source is the live website, not this document.
 
 ---
 

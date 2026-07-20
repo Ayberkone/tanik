@@ -16,13 +16,15 @@ The previous framing assumed ND-IRIS-0405 was the target. Two discoveries on 202
 2. CASIA's website (`biometrics.idealtest.org`) is intermittently unreachable from multiple networks.
 3. **The IEEE Biometrics Council resources page <https://ieee-biometrics.org/resources/biometric-databases/ocular-iris-periocular/> lists a much better-fit option: the PolyU Cross-Spectral Iris Database hosted by Ajay Kumar at Hong Kong PolyU.** Web-form application, no institutional gate, NIR + visible (paired), 12,540 images from 209 subjects. Genuinely accessible to solo independent authors; Prof. Kumar has historically been supportive of open-source projects.
 
-**The plan is now PolyU-primary, with three honest-ask backups already drafted.**
+**The plan is now PolyU-primary but STALLED (~3mo silent as of 2026-07-20); CASIA activated as the parallel NIR fallback; ND-CVRL refused.**
 
-**1a. PolyU Cross-Spectral (primary).** Read `docs/polyu-iris-access.md`. Open the application form at <http://www4.comp.polyu.edu.hk/~csajaykr/myhome/database_request/polyuiris/>. Paste the field text from `docs/outreach/polyu-iris-request.md`. Submit. Reported response time: a few days. **Estimated effort: 10 minutes.**
+**→ Two things to do now:** (1a) send the PolyU follow-up; (1c) retry + send CASIA.
 
-**1b. ND-CVRL honest-ask (parallel, sent — awaiting reply).** Email at `docs/outreach/nd-iris-independent-author.md`. Asks whether ND-CVRL has any path for unaffiliated authors. Worst case "no" → costs nothing; best case unblocks the largest NIR iris dataset.
+**1a. PolyU Cross-Spectral (primary — STALLED).** Application submitted 2026-04-26 via the form at <http://www4.comp.polyu.edu.hk/~csajaykr/myhome/database_request/polyuiris/>; "reply within days" has now been ~3 months of silence. **Next step: send the follow-up email** — ready to paste at `docs/outreach/polyu-iris-request.md` → "Follow-up email", to `ajay.kumar@polyu.edu.hk`. **Estimated effort: 5 minutes.**
 
-**1c. CASIA when the site becomes reachable.** Draft is ready at `docs/outreach/casia-iris-request.md`. Try the URL `biometrics.idealtest.org` periodically; if/when reachable, send.
+**1b. ND-CVRL honest-ask — REFUSED 2026-07-17.** Replied declining access (compliance office + Office of General Counsel; no path for unaffiliated authors). Anticipated; door closed. Documented in `docs/nd-iris-0405-access.md`. No further action unless an institutional sponsor materialises.
+
+**1c. CASIA-Iris-V4 (NIR fallback — activated in parallel).** Draft ready at `docs/outreach/casia-iris-request.md`. On 2026-07-20 the dataset portal `biometrics.idealtest.org` returned **503** (up but erroring) while the CBSR host `cbsr.ia.ac.cn` returned **200** — so it's flaky, not dead. **Next step: retry `biometrics.idealtest.org` from your network; when it loads, download the current application form and send the draft.** Etiquette note: normally you'd apply to one iris DB at a time, but the 3-month PolyU stall justifies running CASIA in parallel — and it's a different institution (Chinese Academy of Sciences vs. HK PolyU), so there's no overlap of reviewers.
 
 **1d. IIT Delhi Iris (smaller, visible-only) and UBIRIS.v2 (no-gate, visible-only).** Documented as further fallbacks in `docs/polyu-iris-access.md`. Only pursue if PolyU refuses — extremely unlikely.
 
