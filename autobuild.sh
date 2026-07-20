@@ -14,9 +14,10 @@
 # and waits. That is wrong for an unattended loop, so the default PROMPT below
 # loads the same handoff but keeps going — while explicitly honoring the
 # phase-gate discipline in CLAUDE.md (never pull work forward from a later phase;
-# scope drift is this project's #1 failure mode). If the only remaining work is
-# blocked (e.g. awaiting datasets), it does a docs/test-hardening pass instead of
-# inventing scope, and makes no commit if there is genuinely nothing safe to ship.
+# scope drift is this project's #1 failure mode). It SKIPS blocked work entirely
+# (dataset-gated, owner-gated, needs-a-human, awaiting an external reply) rather
+# than doing make-work in its place, and makes NO commit when nothing is genuinely
+# actionable — a clean no-op the loop detects and stops on.
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # SAFETY — READ THIS
@@ -45,15 +46,23 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$REPO_DIR" || exit 1
 
 # TANIK resume-and-ship prompt (the /load convention, but proceed instead of wait).
-DEFAULT_PROMPT='Resume autonomously from the on-disk handoff and ship the next unit of work end-to-end. \
+# Designed to SKIP blockers cleanly: it never attempts gated work and never
+# manufactures busywork — when nothing is actionable it no-ops, which the loop's
+# HEAD-diff detector reads as a no-op and backs off / stops.
+DEFAULT_PROMPT='Resume autonomously from the on-disk handoff and ship the next GENUINELY ACTIONABLE unit of work end-to-end. \
 (1) Read CLAUDE.md, ROADMAP.md "Current status", BACKLOG.md, and .claude/session-state.md to rebuild the picture \
 (this is the /load convention, but do NOT stop and wait — proceed). \
-(2) Pick the next actionable task from the CURRENT phase in ROADMAP.md. Honor the phase-gate discipline: never pull \
-work forward from a later phase. If the only remaining work is blocked (e.g. awaiting datasets), do a docs consistency \
-or test-hardening pass instead — do not invent scope. \
-(3) Implement it, run the relevant tests, and commit with a conventional message per CLAUDE.md. \
+(2) SKIP ALL BLOCKERS. A task is blocked and must be skipped entirely — not attempted, not worked around, not \
+substituted with make-work — if it is dataset-gated, owner-gated, needs-a-human, or awaiting an external reply. \
+Concretely for TANIK today: #43 FAR/FRR harness (needs a dataset), the #42 DoD demonstration (needs the test set), \
+#33 walkthrough (needs a live human iris in a webcam), and dataset acquisition (needs the owner to send emails) are ALL blocked. \
+Honor the phase-gate discipline: never pull work forward from a later phase. \
+(3) From what remains, pick the next genuinely actionable ENGINEERING task — one buildable and testable right now with \
+no human or external dependency — and ship it: implement, run the relevant tests, commit with a conventional message per CLAUDE.md. \
 (4) Update ROADMAP.md "Current status" and .claude/session-state.md so the next iteration resumes cleanly. \
-If there is genuinely nothing safe to ship, make NO commit and say so.'
+CRITICAL: if NO genuinely actionable task remains (everything left is blocked or a pending judgement call), make NO commit, \
+say so plainly, and exit. Do NOT invent docs/comment/test busywork to look productive — a clean no-op is the correct \
+outcome; the loop detects it and stops.'
 
 # A bare positional integer is a convenience alias for MAX_ITERS (so `./autobuild.sh 10` works).
 if [[ "${1:-}" =~ ^[0-9]+$ ]]; then
