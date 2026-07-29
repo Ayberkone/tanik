@@ -1,13 +1,13 @@
 # Email draft — CASIA Iris access request
 
-**To:** `[verify the current address from biometrics.idealtest.org or the CBSR page]`
+**To:** `znsun@nlpr.ia.ac.cn` (Dr. Zhenan Sun, CBSR / NLPR — the documented contact for the CASIA iris databases)
 **Subject:** CASIA-Iris-V4 access request — open-source biometrics reference project
 
 ---
 
-Dear CASIA / CBSR team,
+Dear Dr. Sun,
 
-I'm writing to request access to the CASIA-Iris-V4 database (specifically the **Thousand** and **Interval** subsets, if both are available; the Thousand subset alone is also acceptable) for the Phase 3 evaluation of an MIT-licensed open-source biometric reference project.
+I'm writing to request access to the CASIA-Iris-V4 database (specifically the **Thousand** and **Interval** subsets, if both are available; the Thousand subset alone is also acceptable) for the Phase 3 evaluation of an MIT-licensed open-source biometric reference project. I would normally register through `biometrics.idealtest.org`, but that portal has been returning HTTP 503 for me over the past several days, so I'm contacting you directly as the listed maintainer of the CASIA iris databases — please just point me back to the portal if it is the preferred route and only temporarily down.
 
 ### Project
 

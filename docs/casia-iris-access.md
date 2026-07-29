@@ -2,9 +2,11 @@
 
 How to request access to a CASIA iris database — the Phase 3 NIR fallback. **Activated as a parallel path on 2026-07-20** after ND-IRIS-0405 was refused (2026-07-17) and PolyU stalled (~3 months silent). No longer "only if the primary refuses" — send it alongside the PolyU follow-up.
 
-> **Reachability check (2026-07-20).** `biometrics.idealtest.org` returned **HTTP 503** (server reachable but service erroring), while the CBSR host `cbsr.ia.ac.cn` returned **HTTP 200**. So the portal is flaky rather than dead — retry `biometrics.idealtest.org` from your own network over a few days; it has historically come back up. Note the 503 could also be geo/network-specific to the machine this check ran from.
+> **Reachability check (2026-07-20, re-confirmed same day).** `biometrics.idealtest.org` still returns **HTTP 503** (server reachable but service erroring) across two checks; the CBSR host `cbsr.ia.ac.cn` returns **HTTP 200**. So the portal is flaky rather than dead — retry it from your own network over a few days; it has historically come back up. The 503 could also be geo/network-specific.
 >
-> **Important caveat.** **The exact submission URL, email address, and current form filename below need to be verified by you when you visit the actual site.** This guide captures what is well-known about CASIA's general process; the specific contact details have changed over the years and the authoritative source is the live website, not this document.
+> **Because the registration portal is down, the recommended route is to email the maintainer directly.** The documented contact for the CASIA iris databases is **Dr. Zhenan Sun — `znsun@nlpr.ia.ac.cn`** (CBSR, National Laboratory of Pattern Recognition, Institute of Automation, CAS). This is the address listed as the CASIA-IrisV4 contact on the CBSR-maintained pages; `nlpr.ia.ac.cn` is the legitimate host lab. The outreach draft (`docs/outreach/casia-iris-request.md`) is now addressed to him and opens by noting the portal is 503.
+>
+> **Still verify on send:** if the portal comes back up while you're waiting, the register-and-download route is lower-friction than email — prefer it. The direct email is the workaround for the portal being down, not a replacement for it.
 
 ---
 
